@@ -7,48 +7,58 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e2e; color: #cdd6f4; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: auto; background: #313244; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h1, h2 { color: #89b4fa; text-align: center; }
+        h1, h2 { color: #89b4fa; text-align: center; font-size: 1.8rem; }
+        h2 { font-size: 1.3rem; margin-top: 25px; text-align: left; border-left: 4px solid #89b4fa; padding-left: 10px; }
         .api-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #45475a; border-radius: 5px; background: #181825; color: #a6adc8; box-sizing: border-box; }
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #45475a; border-radius: 5px; background: #181825; color: #a6adc8; box-sizing: border-box; font-size: 1rem; }
         textarea { height: 150px; resize: vertical; }
-        button { background-color: #a6e3a1; color: #11111b; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        button { background-color: #a6e3a1; color: #11111b; border: none; padding: 12px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; font-size: 1rem; }
         button:hover { background-color: #94e2d5; }
-        #logArea { margin-top: 20px; background: #11111b; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-family: monospace; white-space: pre-wrap; }
+        #logArea { margin-top: 20px; background: #11111b; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem; border: 1px solid #45475a; }
         .log-entry { margin-bottom: 15px; border-bottom: 1px solid #313244; padding-bottom: 10px; }
         .agent-name { color: #f38ba8; font-weight: bold; }
+        
+        /* TELEFON VE TABLET ARAYÜZ DESTEĞİ (RESPONSIVE) */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.4rem; }
+            h2 { font-size: 1.1rem; }
+            .api-grid { grid-template-columns: 1fr; } /* Telefonlarda API kutuları tek sütun olur */
+            input[type="text"], textarea, button { font-size: 0.95rem; padding: 10px; }
+            #logArea { height: 300px; font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Yapay Zeka Sürüsü (10x Gemini)</h1>
+    <h1>Yapay Zeka Sürüsü (10x Gemini JSON v2)</h1>
     
-    <h2>API Anahtarları (Yerel Olarak Kaydedilir)</h2>
+    <h2>API Anahtarları (Yerel Depolama)</h2>
     <div class="api-grid" id="apiInputs">
         </div>
-    <button onclick="saveKeys()">Anahtarları Tarayıcıya Kaydet</button>
+    <button onclick="saveKeys()">Anahtarları Cihaza Kaydet</button>
 
     <h2>Komut Merkezi</h2>
-    <textarea id="mainPrompt" placeholder="Buraya devrim niteliğindeki fikrini yaz (Örn: Gelişmiş bir Luau savaş sistemi yaz veya modern bir HTML site tasarla)..."></textarea>
-    <button onclick="startRevolution()">Devrimi Başlat (Sürüyü Harekete Geçir)</button>
+    <textarea id="mainPrompt" placeholder="İstediğin HTML, Luau veya herhangi bir kod fikrini buraya yaz..."></textarea>
+    <button onclick="startRevolution()">Sürüyü Harekete Geçir</button>
 
-    <h2>Operasyon Kayıtları (Loglar)</h2>
+    <h2>Operasyon ve Protokol Kayıtları</h2>
     <div id="logArea"></div>
 </div>
 
 <script>
     const MODEL_NAME = "gemini-3.1-flash-lite"; 
-    // Not: Model adı Google sunucularında henüz bu isimle aktif değilse, 'gemini-1.5-flash' olarak güncellemen gerekebilir.
     const API_COUNT = 10;
 
-    // Sayfa yüklendiğinde inputları oluştur ve kayıtlı verileri çek
     window.onload = () => {
         const apiGrid = document.getElementById('apiInputs');
         for (let i = 1; i <= API_COUNT; i++) {
             const input = document.createElement('input');
             input.type = 'text';
             input.id = 'apiKey' + i;
-            input.placeholder = 'API Key ' + i;
+            input.placeholder = 'Gemini API Key ' + i;
             input.value = localStorage.getItem('apiKey' + i) || '';
             apiGrid.appendChild(input);
         }
@@ -59,7 +69,7 @@
             const val = document.getElementById('apiKey' + i).value;
             localStorage.setItem('apiKey' + i, val);
         }
-        alert('API Anahtarları cihazına (Local Storage) kaydedildi!');
+        alert('API Anahtarları yerel tarayıcı hafızasına güvenle kaydedildi!');
     }
 
     function logToScreen(agent, message) {
@@ -71,14 +81,26 @@
         logArea.scrollTop = logArea.scrollHeight;
     }
 
-    async function callGemini(apiKey, systemInstruction, prompt) {
+    // JSON modunu destekleyen yeni API çağrı fonksiyonu
+    async function callGemini(apiKey, systemInstruction, promptData, isJsonOutput = true) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
         
-        const strictRules = `KESİN KURALLAR: Asla kodlarda kısaltma yapma. "Buraya eski kodlar gelecek" gibi yorum satırlarıyla kolaya kaçma. Önceki özellikleri asla silme. Kaliteyi en üstte tut ve iliklerine kadar detaylı çalış. İşbirliği içinde olduğunu unutma.`;
+        const strictRules = "KESİN KURALLAR: Kodlarda asla kısaltma yapma. Kolaya kaçma. Önceki özellikleri koru, üstüne ekle. Kaliteyi en üstte tut.";
         
         const payload = {
-            contents: [{ parts: [{ text: strictRules + "\n\nGÖREVİN:\n" + systemInstruction + "\n\nVERİ:\n" + prompt }] }]
+            contents: [{ 
+                parts: [{ 
+                    text: `${strictRules}\n\nSİSTEM TALİMATI:\n${systemInstruction}\n\nMEVCUT VERİ PAKETİ:\n${typeof promptData === 'object' ? JSON.stringify(promptData, null, 2) : promptData}` 
+                }] 
+            }]
         };
+
+        // Eğer JSON çıktı istiyorsak Gemini'ye bunu zorunlu kılıyoruz
+        if (isJsonOutput) {
+            payload.generationConfig = {
+                responseMimeType: "application/json"
+            };
+        }
 
         try {
             const response = await fetch(url, {
@@ -87,9 +109,12 @@
                 body: JSON.stringify(payload)
             });
             const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
+            const textResponse = data.candidates[0].content.parts[0].text;
+            
+            return isJsonOutput ? JSON.parse(textResponse) : textResponse;
         } catch (error) {
-            return `HATA: ${error.message}. API Key yanlış olabilir veya limit dolmuş olabilir.`;
+            console.error(error);
+            throw new Error(`Bağlantı veya JSON ayrıştırma hatası: ${error.message}`);
         }
     }
 
@@ -101,48 +126,59 @@
         for (let i = 1; i <= API_COUNT; i++) {
             keys.push(document.getElementById('apiKey' + i).value);
         }
-        if (keys.includes('')) return alert('Lütfen 10 API anahtarını da doldurun!');
+        if (keys.includes('')) return alert('Lütfen tüm API anahtarlarını doldurun!');
 
-        document.getElementById('logArea').innerHTML = ''; // Temizle
-        let currentContext = userPrompt;
+        document.getElementById('logArea').innerHTML = '';
+        logToScreen('Sistem', 'İşlem başlatıldı. Sürü ortak JSON protokolüne geçiş yapıyor...');
+
+        // Başlangıç JSON veri yapısı
+        let packet = {
+            user_request: userPrompt,
+            architecture_plan: "",
+            task_distribution: "",
+            source_code: "",
+            review_notes: ""
+        };
 
         try {
-            logToScreen('Sistem', 'Devrim başlatılıyor... Ajanlar organize oluyor.');
+            // API 1: Planlama
+            logToScreen('Ajan 1 (Mimar)', 'İstek analiz ediliyor, şema çıkarılıyor...');
+            let res1 = await callGemini(keys[0], "İsteği analiz et. Geliştirilecek yapının mimari planını çıkar. Çıktıyı kesinlikle şu JSON anahtarına yaz: 'architecture_plan'. Diğer alanları boş bırak veya değiştirme.", packet);
+            packet.architecture_plan = res1.architecture_plan;
+            logToScreen('Ajan 1 (Mimar)', `Plan Hazır:\n${packet.architecture_plan}`);
 
-            // API 1 & 2: Planlama
-            logToScreen('Ajan 1 (Mimar)', 'Proje planı çıkarılıyor...');
-            let plan = await callGemini(keys[0], "Sen bir Baş Mimarsın. Verilen isteği analiz et ve diğer yapay zekaların kodu nasıl yazması gerektiğine dair kusursuz, adım adım bir plan oluştur.", currentContext);
-            logToScreen('Ajan 1 (Mimar)', plan);
-            currentContext += "\n\nPROJE PLANI:\n" + plan;
+            // API 2: Dağıtım
+            logToScreen('Ajan 2 (Dağıtımcı)', 'Görev havuzu oluşturuluyor...');
+            let res2 = await callGemini(keys[1], "Mimari plana göre hangi modüllerin, fonksiyonların yazılması gerektiğini detaylandır. Çıktıyı kesinlikle 'task_distribution' anahtarına yaz. Diğer alanlara dokunma.", packet);
+            packet.task_distribution = res2.task_distribution;
+            logToScreen('Ajan 2 (Dağıtımcı)', `Görev Dağıtımı Yapıldı:\n${packet.task_distribution}`);
 
-            logToScreen('Ajan 2 (Dağıtımcı)', 'Görevler bölüştürülüyor...');
-            let tasks = await callGemini(keys[1], "Sen bir Görev Dağıtıcısısın. Plana bakarak hangi fonksiyonların/sistemlerin yazılacağını detaylıca belirle.", currentContext);
-            currentContext += "\n\nGÖREVLER:\n" + tasks;
-
-            // API 3, 4, 5, 6: Kodlama (Sırayla birbirinin üstüne ekleyerek)
-            for(let i = 2; i <= 5; i++) {
-                logToScreen(`Ajan ${i+1} (Geliştirici)`, `Kod tabanı genişletiliyor (Aşama ${i-1})...`);
-                let codeDraft = await callGemini(keys[i], "Sen bir Uzman Geliştiricisin. Görevleri ve planı oku. Kodu oluşturmaya başla veya mevcut koda yeni özellikleri eksiksiz ekle. Asla eski kodu silme.", currentContext);
-                currentContext = "ŞU ANA KADAR YAZILAN KOD VE DURUM:\n" + codeDraft;
-                logToScreen(`Ajan ${i+1} (Geliştirici)`, `Aşama ${i-1} tamamlandı.`);
+            // API 3 - 6: Kodlama Aşamaları (Her ajan bir öncekinin yazdığı kodu devralıp büyütür)
+            for (let i = 2; i <= 5; i++) {
+                logToScreen(`Ajan ${i+1} (Geliştirici)`, `Kod tabanı büyütülüyor (Aşama ${i-1})...`);
+                let resCode = await callGemini(keys[i], "Planı ve görevleri incele. 'source_code' alanındaki kodu geliştir, yeni özellikleri ekle. Mevcut fonksiyonları koru, asla silme veya kısaltma yapma. Sonucu 'source_code' alanına yaz.", packet);
+                packet.source_code = resCode.source_code;
+                logToScreen(`Ajan ${i+1} (Geliştirici)`, `Aşama ${i-1} kodu güncellendi.`);
             }
 
-            // API 7, 8, 9: Derin İnceleme ve Hata Ayıklama
-            for(let i = 6; i <= 8; i++) {
-                logToScreen(`Ajan ${i+1} (Müfettiş)`, `Kodlar iliklerine kadar inceleniyor (Denetim ${i-5})...`);
-                let review = await callGemini(keys[i], "Sen acımasız bir Kod Müfettişisin. Yazılan kodda eksik, güvenlik açığı, optimizasyon sorunu veya 'kolaya kaçılmış' (kısaltılmış) yerler ara. Bulduğun hataları düzeltip kodun tamamını YENİDEN, hiçbir yeri eksiltmeden yaz.", currentContext);
-                currentContext = "DENETLENMİŞ KOD:\n" + review;
+            // API 7 - 9: İliklerine Kadar İnceleme ve Optimizasyon
+            for (let i = 6; i <= 8; i++) {
+                logToScreen(`Ajan ${i+1} (Müfettiş)`, `Kod satır satır denetleniyor (Denetim ${i-5})...`);
+                let resReview = await callGemini(keys[i], "Yazılan 'source_code' içeriğini iliklerine kadar incele. Hata, eksiklik, kolaya kaçılmış yorum satırları veya mantık hatalarını temizle. Kodu kusursuzlaştırıp yeniden 'source_code' alanına göm. İnceleme notlarını 'review_notes' alanına ekle.", packet);
+                packet.source_code = resReview.source_code;
+                packet.review_notes += `\n[Müfettiş ${i-5}]: ` + resReview.review_notes;
+                logToScreen(`Ajan ${i+1} (Müfettiş)`, `Denetim ${i-5} bitti. Hatalar giderildi.`);
             }
 
-            // API 10: Final
-            logToScreen('Ajan 10 (Başkan)', 'Final derlemesi yapılıyor...');
-            let finalOutput = await callGemini(keys[9], "Sen son onay merciisin. Tüm denetimlerden geçmiş bu kodu son bir kez parlat, tüm parçaların mükemmel çalıştığından emin ol ve kullanıcıya sunulacak final, eksiksiz, en kaliteli versiyonu ver.", currentContext);
-            logToScreen('Ajan 10 (FİNAL SONUÇ)', finalOutput);
-
-            logToScreen('Sistem', 'İşlem başarıyla tamamlandı. Dakikalık 5 istek limiti korundu (Her API sadece 1 kez kullanıldı).');
+            // API 10: Final Birleştirme (Kullanıcıya doğrudan temiz kod sunmak için isJsonOutput = false yapıyoruz)
+            logToScreen('Ajan 10 (Final Sorumlusu)', 'Son entegrasyon yapılıyor ve çıktı hazırlanıyor...');
+            let finalOutput = await callGemini(keys[9], "Sana gelen tüm JSON paketini (plan, kodlar, denetimler) oku. En temiz, en kaliteli, hiçbir satırı kısaltılmamış ve eksiksiz çalışan nihai kod bloklarını veya sistem dosyasını doğrudan düz metin/markdown formatında kullanıcıya sun.", packet, false);
+            
+            logToScreen('FİNAL ÇIKTI', finalOutput);
+            logToScreen('Sistem', 'Sürü operasyonu başarıyla tamamladı! Dakikalık limitler aşılmadı.');
 
         } catch (err) {
-            logToScreen('SİSTEM HATASI', err);
+            logToScreen('SİSTEM HATASI', err.message);
         }
     }
 </script>
