@@ -16,7 +16,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; }
 
-        /* --- SİDEBAR --- */
         #sidebar { width: 300px; background-color: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; z-index: 20; height: 100%; }
         .sidebar-header { padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); }
         .logo-e { width: 45px; height: 45px; background: linear-gradient(135deg, var(--logo-color), var(--accent)); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
@@ -36,7 +35,6 @@
         .settings-btn { width: 100%; background: var(--bg-input); color: var(--text-main); border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .settings-btn:hover { background: var(--border); }
 
-        /* --- ANA İÇERİK --- */
         #main-content { flex: 1; display: flex; flex-direction: column; position: relative; height: 100%; min-width: 0; }
         .mobile-header { display: none; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); align-items: center; z-index: 10; }
         .chat-container { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; }
@@ -48,29 +46,25 @@
         .log-entry.system { border-color: var(--text-muted); color: var(--text-muted); font-style: italic; }
         .log-entry.error { border-color: var(--error); color: #fca5a5; }
         .log-entry.warning { border-color: var(--warning); color: #fcd34d; }
-        .log-entry.final { border-color: var(--success); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
+        .log-entry.final { border-color: var(--success); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); background: #000; padding: 0; border: 1px solid #333; }
         .log-entry.processing { border-left: 5px solid; animation: pulseBorder 1.5s infinite; }
 
         .agent-name { font-weight: bold; color: var(--logo-color); margin-bottom: 8px; display: block; font-size: 16px; }
-        .log-entry.final .agent-name { color: var(--success); }
         .log-entry.error .agent-name { color: var(--error); }
         .log-entry.warning .agent-name { color: var(--warning); }
 
-        .final-code-box { background: #000; border-radius: 10px; margin-top: 12px; overflow: hidden; border: 1px solid #333; }
-        .final-code-header { background: #111; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-muted); font-weight: bold; border-bottom: 1px solid #333; }
+        .final-code-header { background: #111; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--success); font-weight: bold; border-bottom: 1px solid #333; }
         .copy-btn { background: var(--accent); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
         .copy-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
         pre { margin: 0; padding: 15px; overflow-x: auto; color: #a6e22e; }
         code { font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 14px; }
 
-        /* --- GİRİŞ ALANI --- */
         .input-area { padding: 15px 20px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; gap: 12px; padding-bottom: max(15px, env(safe-area-inset-bottom)); z-index: 10; }
         textarea { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; color: var(--text-main); padding: 15px; resize: none; height: 60px; font-size: 15px; transition: 0.3s; }
         textarea:focus { outline: none; border-color: var(--accent); }
         .send-btn { background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: white; border: none; border-radius: 12px; padding: 0 25px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
         .send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(59,130,246,0.4); }
 
-        /* --- AYARLAR MODALI --- */
         #settingsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-content { background: var(--bg-panel); width: 95%; max-width: 600px; border-radius: 16px; padding: 25px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); animation: fadeInUp 0.3s ease-out; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -112,7 +106,7 @@
         <div class="chat-container" id="chatContainer"></div>
 
         <div class="input-area">
-            <textarea id="promptInput" placeholder="Sürünün yapmasını istediğin devasa kodlamayı anlat..."></textarea>
+            <textarea id="promptInput" placeholder="Html, Luau, Executor Script vb. Ne istersen devasa şekilde yazdır..."></textarea>
             <button class="send-btn" onclick="startRevolution()">Gönder</button>
         </div>
     </div>
@@ -168,7 +162,7 @@
             currentChatId = Date.now().toString();
             chatHistory.unshift({ id: currentChatId, title: "Yeni Operasyon", logs: [] });
             saveChatHistory(); document.getElementById('chatContainer').innerHTML = '';
-            logToUI('Sistem', 'Yeni görev için hazır. Sistem artık "Kırılmaz Blok" mimarisiyle çalışıyor. Çökmeler engellendi.', 'system');
+            logToUI('Sistem', 'Yeni görev için hazır. Sistem "Devasa Kod Genişletme" moduna geçirildi. Yorum satırları yasaklandı.', 'system');
             if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
         }
 
@@ -214,13 +208,21 @@
 
         function logToUI(agent, message, type = 'normal', rawCode = null) {
             let html = '';
-            if (type === 'final' && rawCode) {
+            if (type === 'final') {
+                // Final kod kutusu (Mesajsız, sadece kod)
                 const safeCode = rawCode.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 const uniqueId = 'code-' + Date.now();
-                html = `<div class="log-entry final"><span class="agent-name">[${agent}] Nihai Ürün:</span><div class="final-code-box"><div class="final-code-header"><span>Kaynak Kodu</span><button class="copy-btn" onclick="copyCode('${uniqueId}')">Kopyala</button></div><pre><code id="${uniqueId}">${safeCode}</code></pre></div></div>`;
+                html = `
+                <div class="log-entry final">
+                    <div class="final-code-header">
+                        <span>[${agent}] Saf Kaynak Kodu</span>
+                        <button class="copy-btn" onclick="copyCode('${uniqueId}')">Kopyala</button>
+                    </div>
+                    <pre><code id="${uniqueId}">${safeCode}</code></pre>
+                </div>`;
             } else {
                 let cssClass = 'log-entry ' + (type === 'normal' ? '' : type);
-                let safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                let safeMessage = message ? message.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
                 html = `<div class="${cssClass}"><span class="agent-name">[${agent}]:</span>${safeMessage}</div>`;
             }
             appendLogHTML(html);
@@ -247,14 +249,12 @@
             });
         }
 
-        // KOPMAYAN TEXT PARÇALAYICI
         function extractBlock(text, blockName) {
             const regex = new RegExp(`\\[${blockName}\\]([\\s\\S]*?)\\[\\/${blockName}\\]`, 'i');
             const match = text.match(regex);
             return match ? match[1].trim() : null;
         }
 
-        // JSON ZORUNLULUĞUNU KALDIRAN YENİ API ÇAĞRISI
         async function callGeminiRaw(apiKey, systemPrompt, dataString) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
             const payload = {
@@ -267,7 +267,6 @@
             return data.candidates[0].content.parts[0].text;
         }
 
-        // AKILLI TEKRAR SİSTEMİ
         async function callGeminiWithRetry(agentName, apiKey, systemPrompt, dataString, maxRetries = 3) {
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
@@ -292,74 +291,27 @@
             if (chat.title === "Yeni Operasyon") { chat.title = prompt.substring(0, 25) + "..."; saveChatHistory(); }
 
             logToUI('Kullanıcı', prompt, 'normal');
-            logToUI('Sistem', `Sürü harekete geçti. Blok Mimari kullanılıyor (JSON Çökmesi Engellendi)...`, 'system');
+            logToUI('Sistem', `Sürü harekete geçti. Devasa Kod ve "Sıfır Yorum Satırı" protokolleri aktif.`, 'system');
 
-            // Ortak Hafıza (JSON DEĞİL, DÜZ METİN!)
             let memory = { plan: "", currentCode: "", notes: "" };
 
             try {
                 let L = activeKeys.length;
 
-                if (L === 1) {
-                    logToUI('Ajan 1', 'İşlem yapılıyor...', 'processing');
-                    let rawOutput = await callGeminiWithRetry('Ajan 1', activeKeys[0], "Tüm işlemleri tek başına yap. Çıktıyı [KOD] ve [/KOD] etiketleri arasına yaz. Asla kısaltma yapma.", `İstek: ${prompt}`);
-                    let finalCode = extractBlock(rawOutput, 'KOD') || rawOutput.replace(/```/g, '');
-                    return logToUI('Ajan 1', 'Süreç tamamlandı.', 'final', finalCode);
-                }
-
-                // 1. MİMAR
-                logToUI('Ajan 1 (Mimar)', 'İstek analiz ediliyor...', 'processing');
-                let mimarPrompt = `Sen Mimarsın. İstek için detaylı bir plan yap. Planı kesinlikle [PLAN] ve [/PLAN] etiketleri arasına yaz.`;
+                // 1. MİMAR (Artık iskelet değil, devasa kurumsal proje tasarlıyor)
+                logToUI('Ajan 1 (Mimar)', 'İstek analiz ediliyor, devasa bir altyapı planlanıyor...', 'processing');
+                let mimarPrompt = `Sen bir Baş Mimarsın. Kullanıcı HTML, Luau, Executor Script, Python vb. ne istediyse o dilde devasa, bol özellikli, kurumsal kalitede bir mimari planla. Sadece temel işlevleri değil; ekstra özellikleri, güvenlik önlemlerini, animasyonları veya gelişmiş mantık detaylarını da plana dahil et. Planı kesinlikle [PLAN] ve [/PLAN] etiketleri arasına yaz.`;
                 let mimarOutput = await callGeminiWithRetry('Ajan 1 (Mimar)', activeKeys[0], mimarPrompt, `İstek: ${prompt}`);
                 memory.plan = extractBlock(mimarOutput, 'PLAN') || mimarOutput;
-                logToUI('Ajan 1 (Mimar)', 'Plan hazır.');
+                logToUI('Ajan 1 (Mimar)', 'Kapsamlı proje planı hazır.');
 
-                // 2. GELİŞTİRİCİLER VE MÜFETTİŞLER
+                // 2. GELİŞTİRİCİLER VE MÜFETTİŞLER (Artık kodu uzatıyorlar ve yorum satırı yasak)
                 let middleKeys = activeKeys.slice(1, L - 1); 
                 for (let i = 0; i < middleKeys.length; i++) {
                     let role = i % 2 === 0 ? 'Geliştirici' : 'Müfettiş';
                     let agentNum = i + 2;
                     let agentStr = `Ajan ${agentNum} (${role})`;
 
-                    logToUI(agentStr, `Kod tabanı üzerinde çalışılıyor...`, 'processing');
+                    logToUI(agentStr, `Kod tabanı agresif şekilde genişletiliyor...`, 'processing');
                     
-                    let instruction = `ÖNEMLİ KURAL: Kısaltma yapma. Çıktını ŞU FORMA GÖRE ver:\n[NOTLAR]\nNe yaptığını buraya yaz.\n[/NOTLAR]\n[KOD]\nTam ve eksiksiz kodu buraya yaz.\n[/KOD]\n\nGÖREV: `;
-                    instruction += role === 'Geliştirici' ? "Plana ve notlara göre MEVCUT KODU büyüt ve eksiksiz yaz." : "Kodu incele, hataları düzelt, eksikleri tamamla.";
-
-                    let dataString = `PLAN:\n${memory.plan}\n\nÖNCEKİ NOTLAR:\n${memory.notes}\n\nMEVCUT KOD:\n${memory.currentCode}`;
-
-                    try {
-                        let result = await callGeminiWithRetry(agentStr, middleKeys[i], instruction, dataString);
-                        
-                        let extractedCode = extractBlock(result, 'KOD');
-                        let extractedNotes = extractBlock(result, 'NOTLAR');
-
-                        // Sistem çok sağlama alındı: Eğer ajan etiketi unutursa, verdiği her şeyi kod say!
-                        if (extractedCode) memory.currentCode = extractedCode;
-                        else if (result.length > 50) memory.currentCode = result.replace(/```(html|lua|javascript)?/gi, '').replace(/```/g, ''); 
-                        
-                        if (extractedNotes) memory.notes = extractedNotes;
-
-                        logToUI(agentStr, `Görev tamamlandı.`);
-                    } catch (e) {
-                        // KOPMAZ ZİNCİR MANTIĞI BURADA!
-                        logToUI(agentStr, `Ajan çok yoruldu veya limit yedi. Ancak sistem ÇÖKMEDİ! Mevcut kod güvende, sıradaki ajana geçiliyor.`, 'error');
-                    }
-                }
-
-                // 3. BAŞKAN (FİNAL)
-                logToUI(`Ajan ${L} (Başkan)`, 'Nihai derleme yapılıyor...', 'processing');
-                let baskanPrompt = `Sen Başkansın. Gelen MEVCUT KODU al, son kez temizle, hataları gider. Çıktıyı SADECE [FİNAL_KOD] ve [/FİNAL_KOD] arasına yaz. Başka hiçbir şey yazma.`;
-                let baskanOutput = await callGeminiWithRetry(`Ajan ${L} (Başkan)`, activeKeys[L - 1], baskanPrompt, `MEVCUT KOD:\n${memory.currentCode}`, 4);
-                
-                let finalCode = extractBlock(baskanOutput, 'FİNAL_KOD') || baskanOutput.replace(/```(html|lua|javascript)?/gi, '').replace(/```/g, '').trim();
-
-                logToUI(`Ajan ${L} (Başkan)`, 'İşte hiçbir satırı kısaltılmamış nihai sonuç:', 'final', finalCode);
-
-            } catch (error) {
-                logToUI('Sistem Hatası', error.message, 'error');
-            }
-        }
-    </script>
-</body>
-</html>
+                    let instruction = `ÖNEMLİ KURAL: Kısaltma yapma. Kodu DEVASA şekilde genişlet. Kodun içine ASLA yorum satırı (//, --, 
