@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Swarm Devrimi - Gelişmiş</title>
+    <title>AI Swarm Devrimi - Deepseek v4 Pro & Gemini</title>
     <style>
         :root {
             --bg-main: #0f172a; --bg-panel: #1e293b; --bg-input: #334155;
@@ -11,6 +11,7 @@
             --text-main: #f8fafc; --text-muted: #94a3b8;
             --border: #475569; --success: #10b981; --error: #ef4444; --warning: #f59e0b;
             --logo-color: #60a5fa;
+            --deepseek-color: #4ade80;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -64,20 +65,42 @@
         code { font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 14px; }
 
         /* --- GİRİŞ ALANI --- */
-        .input-area { padding: 15px 20px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; gap: 12px; padding-bottom: max(15px, env(safe-area-inset-bottom)); z-index: 10; }
-        textarea { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; color: var(--text-main); padding: 15px; resize: none; height: 60px; font-size: 15px; transition: 0.3s; }
+        .input-area { padding: 15px 20px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; gap: 12px; padding-bottom: max(15px, env(safe-area-inset-bottom)); z-index: 10; align-items: center; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 8px; min-width: 110px; }
+        
+        .ai-select { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 13px; font-weight: bold; cursor: pointer; outline: none; }
+        .ai-select:focus { border-color: var(--accent); }
+        
+        .loop-container { display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; }
+        .loop-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .loop-input { background: transparent; color: var(--text-main); border: none; font-size: 15px; font-weight: bold; width: 40px; text-align: center; outline: none; }
+        
+        textarea { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; color: var(--text-main); padding: 15px; resize: none; height: 75px; font-size: 15px; transition: 0.3s; }
         textarea:focus { outline: none; border-color: var(--accent); }
-        .send-btn { background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: white; border: none; border-radius: 12px; padding: 0 25px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .send-btn { background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: white; border: none; border-radius: 12px; padding: 0 25px; height: 75px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
         .send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(59,130,246,0.4); }
 
-        /* --- AYARLAR MODALI --- */
+        /* --- AYARLAR MODALI & SEKMELER --- */
         #settingsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--bg-panel); width: 95%; max-width: 600px; border-radius: 16px; padding: 25px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); animation: fadeInUp 0.3s ease-out; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-content { background: var(--bg-panel); width: 95%; max-width: 650px; border-radius: 16px; padding: 25px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); animation: fadeInUp 0.3s ease-out; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .close-btn { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
+        
+        .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.3s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active[onclick*="gemini"] { color: var(--logo-color); border-bottom-color: var(--logo-color); }
+        .tab-btn.active[onclick*="deepseek"] { color: var(--deepseek-color); border-bottom-color: var(--deepseek-color); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .api-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px; }
-        .api-grid input { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); padding: 12px; border-radius: 8px; width: 100%; }
-        .save-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .api-grid input { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); padding: 12px; border-radius: 8px; width: 100%; transition: 0.3s; }
+        .api-grid input:focus { border-color: var(--accent); outline: none; }
+        
+        .save-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s; }
+        .save-btn:hover { background: #059669; }
 
         @media (max-width: 768px) {
             #sidebar { position: absolute; height: 100dvh; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
@@ -85,7 +108,12 @@
             .mobile-header { display: flex; }
             .api-grid { grid-template-columns: 1fr; }
             .chat-container { padding: 15px; }
-            .chat-actions { opacity: 1; }
+            .input-area { flex-wrap: wrap; }
+            .control-group { width: 100%; flex-direction: row; }
+            .ai-select { flex: 1; height: 45px; }
+            .loop-container { flex: 1; height: 45px; }
+            textarea { height: 60px; width: 100%; }
+            .send-btn { width: 100%; height: 45px; }
         }
     </style>
 </head>
@@ -112,6 +140,16 @@
         <div class="chat-container" id="chatContainer"></div>
 
         <div class="input-area">
+            <div class="control-group">
+                <select id="aiModelSelect" class="ai-select">
+                    <option value="gemini">🔹 Gemini (Flash)</option>
+                    <option value="deepseek">🟢 Deepseek (v4 Pro)</option>
+                </select>
+                <div class="loop-container" title="1 seçerseniz her API 1 kez çalışır. 3 seçerseniz API'ler 3 tur döner!">
+                    <span class="loop-label">ÇARPAN</span>
+                    <input type="number" id="loopMultiplier" class="loop-input" min="1" max="50" value="1">
+                </div>
+            </div>
             <textarea id="promptInput" placeholder="Sürünün yapmasını istediğin devasa kodlamayı anlat..."></textarea>
             <button class="send-btn" onclick="startRevolution()">Gönder</button>
         </div>
@@ -123,14 +161,29 @@
                 <h2>API Yapılandırması</h2>
                 <button class="close-btn" onclick="closeSettings()">✖</button>
             </div>
-            <div class="api-grid" id="apiGrid"></div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('gemini')" id="tab-gemini">Gemini API</button>
+                <button class="tab-btn" onclick="switchTab('deepseek')" id="tab-deepseek">Deepseek API</button>
+            </div>
+
+            <div id="content-gemini" class="tab-content active">
+                <div class="api-grid" id="geminiApiGrid"></div>
+            </div>
+            
+            <div id="content-deepseek" class="tab-content">
+                <div class="api-grid" id="deepseekApiGrid"></div>
+            </div>
+
             <button class="save-btn" onclick="saveSettings()">Kaydet</button>
         </div>
     </div>
 
     <script>
         const MAX_API = 20;
-        const MODEL_NAME = "gemini-3.1-flash-lite"; 
+        const GEMINI_MODEL = "gemini-3.1-flash-lite"; 
+        const DEEPSEEK_MODEL = "deepseek-v4-pro";
+
         let chatHistory = JSON.parse(localStorage.getItem('swarmChats')) || [];
         let currentChatId = null;
 
@@ -138,29 +191,53 @@
             initSettingsUI(); renderChatList();
             if (chatHistory.length > 0) loadChat(chatHistory[0].id);
             else createNewChat();
+            
+            const savedAi = localStorage.getItem('preferredAiMode');
+            if(savedAi) document.getElementById('aiModelSelect').value = savedAi;
         };
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
         function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
 
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.getElementById(`content-${tabName}`).classList.add('active');
+        }
+
         function initSettingsUI() {
-            const grid = document.getElementById('apiGrid');
+            const geminiGrid = document.getElementById('geminiApiGrid');
+            const deepseekGrid = document.getElementById('deepseekApiGrid');
+            
             for (let i = 1; i <= MAX_API; i++) {
-                let input = document.createElement('input'); input.type = 'text'; input.id = 'apiKey' + i;
-                input.placeholder = `Gemini API Key ${i}`; input.value = localStorage.getItem('apiKey' + i) || '';
-                grid.appendChild(input);
+                let gInput = document.createElement('input'); gInput.type = 'text'; gInput.id = 'geminiKey' + i;
+                gInput.placeholder = `Gemini API Key ${i}`; gInput.value = localStorage.getItem('geminiKey' + i) || '';
+                geminiGrid.appendChild(gInput);
+
+                let dInput = document.createElement('input'); dInput.type = 'text'; dInput.id = 'deepseekKey' + i;
+                dInput.placeholder = `Deepseek API Key ${i}`; dInput.value = localStorage.getItem('deepseekKey' + i) || '';
+                deepseekGrid.appendChild(dInput);
             }
         }
 
         function saveSettings() {
-            for (let i = 1; i <= MAX_API; i++) localStorage.setItem('apiKey' + i, document.getElementById('apiKey' + i).value.trim());
+            for (let i = 1; i <= MAX_API; i++) {
+                localStorage.setItem('geminiKey' + i, document.getElementById('geminiKey' + i).value.trim());
+                localStorage.setItem('deepseekKey' + i, document.getElementById('deepseekKey' + i).value.trim());
+            }
             closeSettings(); logToUI('Sistem', 'API anahtarları başarıyla kaydedildi.', 'system');
         }
 
-        function getActiveKeys() {
+        function getActiveKeys(provider) {
             let keys = [];
-            for (let i = 1; i <= MAX_API; i++) { let val = localStorage.getItem('apiKey' + i); if (val) keys.push(val.trim()); }
+            let prefix = provider === 'gemini' ? 'geminiKey' : 'deepseekKey';
+            for (let i = 1; i <= MAX_API; i++) { 
+                let val = localStorage.getItem(prefix + i); 
+                if (val) keys.push(val.trim()); 
+            }
             return keys;
         }
 
@@ -168,7 +245,7 @@
             currentChatId = Date.now().toString();
             chatHistory.unshift({ id: currentChatId, title: "Yeni Operasyon", logs: [] });
             saveChatHistory(); document.getElementById('chatContainer').innerHTML = '';
-            logToUI('Sistem', 'Sistem "Gelişmiş Fikir & Tam Kod" modunda. Ajanlar artık kodları kısaltmayacak ve detay katacak.', 'system');
+            logToUI('Sistem', 'Çoklu AI Mimarisi Devrede. Hem Gemini hem de Deepseek kullanılabilir.', 'system');
             if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
         }
 
@@ -215,12 +292,12 @@
         function logToUI(agent, message, type = 'normal', rawCode = null) {
             let html = '';
             if (type === 'final' && rawCode) {
-                const safeCode = rawCode.replace(/</g, "<").replace(/>/g, ">");
+                const safeCode = rawCode.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 const uniqueId = 'code-' + Date.now();
                 html = `<div class="log-entry final"><span class="agent-name">[${agent}] Nihai Ürün:</span><div class="final-code-box"><div class="final-code-header"><span>Kaynak Kodu</span><button class="copy-btn" onclick="copyCode('${uniqueId}')">Kopyala</button></div><pre><code id="${uniqueId}">${safeCode}</code></pre></div></div>`;
             } else {
                 let cssClass = 'log-entry ' + (type === 'normal' ? '' : type);
-                let safeMessage = message.replace(/</g, "<").replace(/>/g, ">");
+                let safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 html = `<div class="${cssClass}"><span class="agent-name">[${agent}]:</span>${safeMessage}</div>`;
             }
             appendLogHTML(html);
@@ -254,25 +331,45 @@
         }
 
         async function callGeminiRaw(apiKey, systemPrompt, dataString) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: `${systemPrompt}\n\nVERİ:\n${dataString}` }] }]
-            };
-
+            const url = "https://" + "generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey;
+            const payload = { contents: [{ parts: [{ text: `${systemPrompt}\n\nVERİ:\n${dataString}` }] }] };
             const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-            if (!response.ok) throw new Error(`API Hatası (${response.status})`);
+            if (!response.ok) throw new Error(`Gemini API Hatası (${response.status})`);
             const data = await response.json();
             return data.candidates[0].content.parts[0].text;
         }
 
-        async function callGeminiWithRetry(agentName, apiKey, systemPrompt, dataString, maxRetries = 3) {
+        async function callDeepseekRaw(apiKey, systemPrompt, dataString) {
+            const url = "https://" + "api.deepseek.com/chat/completions";
+            const payload = {
+                model: DEEPSEEK_MODEL,
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: `VERİ:\n${dataString}` }
+                ],
+                thinking: { type: "enabled" },
+                reasoning_effort: "high",
+                stream: false
+            };
+            const response = await fetch(url, { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` }, 
+                body: JSON.stringify(payload) 
+            });
+            if (!response.ok) throw new Error(`Deepseek API Hatası (${response.status})`);
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        async function callAIWithRetry(agentName, apiKey, systemPrompt, dataString, provider, maxRetries = 3) {
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
-                    return await callGeminiRaw(apiKey, systemPrompt, dataString);
+                    if (provider === 'gemini') return await callGeminiRaw(apiKey, systemPrompt, dataString);
+                    else return await callDeepseekRaw(apiKey, systemPrompt, dataString);
                 } catch (error) {
                     console.warn(`${agentName} - Deneme ${attempt} başarısız:`, error);
-                    if (attempt === maxRetries) throw new Error("Ajan yanıt vermeyi reddetti.");
-                    logToUI(agentName, `Limit/Ağ sorunu. ${attempt + 1}. kez deneniyor...`, 'warning');
+                    if (attempt === maxRetries) throw new Error(`${provider.toUpperCase()} yanıt vermeyi tamamen reddetti.`);
+                    logToUI(agentName, `Bağlantı sorunu. ${attempt + 1}. kez deneniyor...`, 'warning');
                     await new Promise(r => setTimeout(r, 2000));
                 }
             }
@@ -281,99 +378,88 @@
         async function startRevolution() {
             const prompt = document.getElementById('promptInput').value.trim();
             if (!prompt) return;
-            const activeKeys = getActiveKeys();
-            if (activeKeys.length === 0) return logToUI('Hata', 'API anahtarı eksik.', 'error');
+            
+            const selectedAi = document.getElementById('aiModelSelect').value;
+            localStorage.setItem('preferredAiMode', selectedAi);
+
+            const activeKeys = getActiveKeys(selectedAi);
+            if (activeKeys.length === 0) return logToUI('Hata', `Seçili AI (${selectedAi.toUpperCase()}) için API anahtarı eksik. Lütfen ayarlardan ekleyin.`, 'error');
+
+            let multiplier = parseInt(document.getElementById('loopMultiplier').value) || 1;
+            if (multiplier < 1) multiplier = 1;
+
+            let totalAgents = activeKeys.length * multiplier;
+            let aiLabel = selectedAi === 'gemini' ? '🔹 Gemini Sürüsü' : '🟢 Deepseek Sürüsü (v4 Pro)';
 
             document.getElementById('promptInput').value = '';
             let chat = chatHistory.find(c => c.id === currentChatId);
             if (chat.title === "Yeni Operasyon") { chat.title = prompt.substring(0, 25) + "..."; saveChatHistory(); }
 
             logToUI('Kullanıcı', prompt, 'normal');
-            logToUI('Sistem', `Sürü harekete geçti. Yaratıcı ve Kesin Kurallı Sistem devrede...`, 'system');
+            logToUI('Sistem', `${aiLabel} harekete geçti. ${activeKeys.length} API anahtarı ile ${multiplier} tur dönülecek. Toplam Ajan: ${totalAgents}`, 'system');
 
             let memory = { plan: "", currentCode: "", notes: "" };
 
             try {
-                let L = activeKeys.length;
-
-                if (L === 1) {
+                if (totalAgents === 1) {
                     logToUI('Ajan 1', 'İşlem yapılıyor...', 'processing');
-                    let rawOutput = await callGeminiWithRetry('Ajan 1', activeKeys[0], "Tüm işlemleri tek başına yap. Çok yaratıcı ol, detaya gir, hataları önceden sez. Çıktıyı eksiksiz [KOD] ve [/KOD] etiketleri arasına yaz. Kesinlikle // şeklinde kodu atlama veya kısaltma yapma. KODUN TAMAMINI VER.", `İstek: ${prompt}`);
-                    let finalCode = extractBlock(rawOutput, 'KOD') || rawOutput.replace(/```/g, '');
+                    let rawOutput = await callAIWithRetry('Ajan 1', activeKeys[0], "Tüm işlemleri tek başına yap. Çok yaratıcı ol, detaya gir, hataları önceden sez. Çıktıyı eksiksiz [KOD] ve [/KOD] etiketleri arasına yaz. Kesinlikle // şeklinde kodu atlama veya kısaltma yapma. KODUN TAMAMINI VER.", `İstek: ${prompt}`, selectedAi);
+                    let finalCode = extractBlock(rawOutput, 'KOD') || rawOutput.replace(/\`\`\`(?:html|lua|javascript|css)?/gi, '').replace(/\`\`\`/g, '');
                     return logToUI('Ajan 1', 'Süreç tamamlandı. Detaylı ve eksiksiz üretim yapıldı.', 'final', finalCode);
                 }
 
-                // 1. MİMAR (VİZYONER)
-                logToUI('Ajan 1 (Mimar)', 'İstek analiz ediliyor, vizyon ve detaylar ekleniyor...', 'processing');
+                // 1. MİMAR
+                let mimarKey = activeKeys[0 % activeKeys.length]; 
+                logToUI('Ajan 1 (Mimar)', 'İstek analiz ediliyor, plan çiziliyor...', 'processing');
                 let mimarPrompt = `Sen vizyoner bir Yazılım Mimarı ve Ürün Yöneticisisin. İstek için detaylı bir plan yap.
-                GÖREVİN:
-                1. İstenen temel işlevi analiz et.
-                2. İstenen şeye vizyon kat! Kullanıcı deneyimini artıracak özellikler (animasyonlar, ekstra fonksiyonlar, veri doğrulamalar vb.) düşün ve plana ekle.
-                3. Muhtemel hataları ve eksikleri önceden öngör.
-                Planını kesinlikle [PLAN] ve [/PLAN] etiketleri arasına detaylıca yaz.`;
-                let mimarOutput = await callGeminiWithRetry('Ajan 1 (Mimar)', activeKeys[0], mimarPrompt, `İstek: ${prompt}`);
+                GÖREVİN: 1. İşlevi analiz et. 2. Vizyon kat! 3. Muhtemel hataları öngör. Planını kesinlikle [PLAN] ve [/PLAN] etiketleri arasına yaz.`;
+                let mimarOutput = await callAIWithRetry('Ajan 1 (Mimar)', mimarKey, mimarPrompt, `İstek: ${prompt}`, selectedAi);
                 memory.plan = extractBlock(mimarOutput, 'PLAN') || mimarOutput;
-                logToUI('Ajan 1 (Mimar)', 'Kapsamlı ve detaylı plan hazırlandı.');
+                logToUI('Ajan 1 (Mimar)', 'Kapsamlı plan hazır.');
 
                 // 2. GELİŞTİRİCİLER VE MÜFETTİŞLER
-                let middleKeys = activeKeys.slice(1, L - 1); 
-                for (let i = 0; i < middleKeys.length; i++) {
-                    let role = i % 2 === 0 ? 'Geliştirici' : 'Müfettiş';
-                    let agentNum = i + 2;
+                for (let i = 1; i < totalAgents - 1; i++) {
+                    let role = i % 2 !== 0 ? 'Geliştirici' : 'Müfettiş';
+                    let agentNum = i + 1;
                     let agentStr = `Ajan ${agentNum} (${role})`;
+                    let currentKey = activeKeys[i % activeKeys.length]; 
 
-                    logToUI(agentStr, `Kod tabanı üzerinde çalışılıyor...`, 'processing');
+                    logToUI(agentStr, `Kod üzerinde çalışılıyor...`, 'processing');
                     
-                    let instruction = "";
-                    if(role === 'Geliştirici') {
-                        instruction = `ÖNEMLİ KURAL: Sen Usta bir Geliştiricisin. Plana göre kodu inşaa et. Kodu YAZARKEN ASLA VE ASLA KISALTMA YAPMA. "Buraya eski kod gelecek", "// aynı kalacak", "..." gibi atlamalar YAPAMAZSIN. Kodun tüm içeriğini baştan sona eksiksiz yazmalısın. Koda yaratıcı detaylar kat, geliştir. Çıktını ŞU FORMA GÖRE ver:
-[NOTLAR]
-Neler eklediğini, vizyondan neleri koda döktüğünü buraya yaz.
-[/NOTLAR]
-[KOD]
-Tam ve hiçbir yeri atlanmamış eksiksiz kodu buraya yaz.
-[/KOD]`;
-                    } else {
-                        instruction = `ÖNEMLİ KURAL: Sen Acımasız bir Kod Müfettişisin. Gelen kodu satır satır incele.
-1. Hata, bug, stil sorunu, çalışmayan fonksiyon var mı incele. Varsa kesin olarak DÜZELT.
-2. Eksik bir şey veya daha iyi yapılabilecek (ekstra eklenebilecek) yerler var mı bul ve KODA EKLE.
-3. KODU ASLA KISALTMA VEYA ÖZETLEME. Değiştirdiğin ve geliştirilmiş kodun TAMAMINI baştan sona eksiksiz yaz.
-Çıktını ŞU FORMA GÖRE ver:
-[NOTLAR]
-Hangi hataları tespit ettin, neleri düzelttin ve neleri geliştirdin açıkla.
-[/NOTLAR]
-[KOD]
-Hataları giderilmiş, geliştirilmiş EKSİKSİZ KODU buraya yaz.
-[/KOD]`;
-                    }
+                    let instruction = role === 'Geliştirici' 
+                        ? `ÖNEMLİ: Sen Geliştiricisin. Plana göre kodu inşaa et. Kodu YAZARKEN ASLA KISALTMA YAPMA. "Buraya eski kod gelecek" diyemezsin. Koda yaratıcı detaylar kat. Çıktını ŞU FORMA GÖRE ver:\n[NOTLAR]\nNeler eklediğini yaz.\n[/NOTLAR]\n[KOD]\nEksiksiz kodu buraya yaz.\n[/KOD]`
+                        : `ÖNEMLİ: Sen Müfettişsin. Kodu incele. Hata var mı bul ve DÜZELT. Eksik bir şey var mı bul ve KODA EKLE. KODU ASLA KISALTMA. Çıktını ŞU FORMA GÖRE ver:\n[NOTLAR]\nHataları/geliştirmeleri açıkla.\n[/NOTLAR]\n[KOD]\nEksiksiz kodu buraya yaz.\n[/KOD]`;
 
                     let dataString = `PLAN:\n${memory.plan}\n\nÖNCEKİ NOTLAR:\n${memory.notes}\n\nMEVCUT KOD:\n${memory.currentCode}`;
 
                     try {
-                        let result = await callGeminiWithRetry(agentStr, middleKeys[i], instruction, dataString);
+                        let result = await callAIWithRetry(agentStr, currentKey, instruction, dataString, selectedAi);
                         
                         let extractedCode = extractBlock(result, 'KOD');
                         let extractedNotes = extractBlock(result, 'NOTLAR');
 
                         if (extractedCode) memory.currentCode = extractedCode;
-                        else if (result.length > 50) memory.currentCode = result.replace(/```(html|lua|javascript|css)?/gi, '').replace(/```/g, ''); 
+                        else if (result.length > 50) memory.currentCode = result.replace(/\`\`\`(?:html|lua|javascript|css)?/gi, '').replace(/\`\`\`/g, ''); 
                         
                         if (extractedNotes) memory.notes = extractedNotes;
 
-                        logToUI(agentStr, `İşlem tamamlandı. Detaylar ve kontroller sağlandı.`);
+                        logToUI(agentStr, `İşlem tamamlandı.`);
                     } catch (e) {
-                        logToUI(agentStr, `Ajan çok yoruldu veya limit yedi. Ancak sistem ÇÖKMEDİ! Mevcut kod güvende, sıradaki ajana geçiliyor.`, 'error');
+                        logToUI(agentStr, `Ajan limit yedi ama sistem ÇÖKMEDİ! Sıradaki ajana geçiliyor.`, 'error');
                     }
                 }
 
-                // 3. BAŞKAN (FİNAL)
-                logToUI(`Ajan ${L} (Başkan)`, 'Nihai derleme ve eksiksizlik kontrolü yapılıyor...', 'processing');
-                let baskanPrompt = `Sen Başkansın. Gelen MEVCUT KODU al, son kez gözden geçir, varsa açık etiketleri (html, css, js) düzgünce kapat. HİÇBİR SATIRI KISALTMA VEYA ATLAMAMAYA yeminlisin. Eksiksiz nihai ürünü oluştur. Çıktıyı SADECE [FİNAL_KOD] ve [/FİNAL_KOD] arasına yaz. Başka hiçbir açıklama yapma.`;
-                let baskanOutput = await callGeminiWithRetry(`Ajan ${L} (Başkan)`, activeKeys[L - 1], baskanPrompt, `MEVCUT KOD:\n${memory.currentCode}`, 4);
+                // 3. BAŞKAN
+                let baskanKey = activeKeys[(totalAgents - 1) % activeKeys.length];
+                let baskanNum = totalAgents;
+                logToUI(`Ajan ${baskanNum} (Başkan)`, 'Nihai derleme yapılıyor...', 'processing');
                 
-                let finalCode = extractBlock(baskanOutput, 'FİNAL_KOD') || baskanOutput.replace(/```(html|lua|javascript|css)?/gi, '').replace(/```/g, '').trim();
+                let baskanPrompt = `Sen Başkansın. Gelen MEVCUT KODU al, son kez gözden geçir, varsa açık etiketleri kapat. HİÇBİR SATIRI KISALTMA. Eksiksiz nihai ürünü oluştur. Çıktıyı SADECE [FİNAL_KOD] ve [/FİNAL_KOD] arasına yaz. Başka hiçbir açıklama yapma.`;
+                let baskanOutput = await callAIWithRetry(`Ajan ${baskanNum} (Başkan)`, baskanKey, baskanPrompt, `MEVCUT KOD:\n${memory.currentCode}`, selectedAi, 4);
+                
+                let finalCode = extractBlock(baskanOutput, 'FİNAL_KOD') || baskanOutput.replace(/\`\`\`(?:html|lua|javascript|css)?/gi, '').replace(/\`\`\`/g, '').trim();
 
-                logToUI(`Ajan ${L} (Başkan)`, 'Operasyon başarılı. İşte kırpılmamış, incelenmiş ve zenginleştirilmiş nihai sonuç:', 'final', finalCode);
+                logToUI(`Ajan ${baskanNum} (Başkan)`, 'Operasyon başarılı. Nihai sonuç hazır:', 'final', finalCode);
 
             } catch (error) {
                 logToUI('Sistem Hatası', error.message, 'error');
