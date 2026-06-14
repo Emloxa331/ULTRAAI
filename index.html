@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>EMROX AI | Çoklu Ajanlı Yapay Zeka Platformu</title>
+    <title>EMROX AI | Gemini 3.1 Flash Lite Multi-Agent Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -11,6 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -21,72 +23,64 @@
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
-        /* Özel Scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #0f1117;
-            border-radius: 10px;
+            background: #0a0c10;
         }
         ::-webkit-scrollbar-thumb {
             background: #2d3748;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #4a5568;
+            background: #6366f1;
         }
 
-        /* Animasyonlar */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.7); }
+        }
+        @keyframes borderFlow {
+            0% { border-color: #6366f1; }
+            50% { border-color: #a855f7; }
+            100% { border-color: #6366f1; }
         }
 
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-out;
-        }
-        .animate-slide-in {
-            animation: slideIn 0.3s ease-out;
-        }
-        .animate-pulse-slow {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+        .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-glow { animation: glow 2s ease-in-out infinite; }
         
-        /* Markdown Stilleri */
+        .gradient-bg {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+
         .prose {
             max-width: none;
         }
@@ -109,13 +103,6 @@
             padding-left: 12px;
             color: #e2e8f0;
         }
-        .prose h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            color: #cbd5e1;
-        }
         .prose p {
             margin-bottom: 0.75rem;
             line-height: 1.7;
@@ -126,49 +113,13 @@
             margin-bottom: 0.75rem;
             color: #cbd5e1;
         }
-        .prose ul {
-            list-style-type: disc;
-        }
-        .prose ol {
-            list-style-type: decimal;
-        }
-        .prose li {
-            margin-bottom: 0.25rem;
-        }
-        .prose a {
-            color: #818cf8;
-            text-decoration: underline;
-        }
-        .prose blockquote {
-            border-left: 4px solid #6366f1;
-            padding-left: 1rem;
-            margin: 1rem 0;
-            color: #94a3b8;
-            font-style: italic;
-        }
-        .prose table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 1rem 0;
-        }
-        .prose th, .prose td {
-            border: 1px solid #334155;
-            padding: 0.5rem;
-            text-align: left;
-        }
-        .prose th {
-            background: #1e293b;
-            color: #f1f5f9;
-        }
 
-        /* Kod Blokları */
         .code-block-container {
             position: relative;
             margin: 1.25rem 0;
             border-radius: 0.75rem;
             overflow: hidden;
             border: 1px solid #334155;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         .code-block-header {
             display: flex;
@@ -179,7 +130,6 @@
             font-family: 'Fira Code', monospace;
             font-size: 0.75rem;
             color: #94a3b8;
-            border-bottom: 1px solid #334155;
         }
         .code-block-copy-btn {
             cursor: pointer;
@@ -189,18 +139,16 @@
         }
         .code-block-copy-btn:hover {
             background: #334155;
-            color: #ffffff;
+            color: #fff;
         }
         pre code {
             display: block;
             padding: 1rem !important;
             overflow-x: auto;
-            font-family: 'Fira Code', 'Courier New', monospace;
             font-size: 0.85rem;
-            background: #0f1117 !important;
+            background: #0a0c10 !important;
         }
 
-        /* Toast Bildirimi */
         .toast-notification {
             position: fixed;
             bottom: 2rem;
@@ -209,104 +157,109 @@
             animation: slideIn 0.3s ease-out;
         }
 
-        /* Yüklenme Efekti */
-        .typing-indicator {
-            display: flex;
-            gap: 0.25rem;
-            align-items: center;
-            padding: 0.5rem;
+        .model-badge {
+            background: linear-gradient(135deg, #6366f120, #a855f720);
+            border: 1px solid #6366f1;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 20px;
         }
-        .typing-indicator span {
-            width: 0.5rem;
-            height: 0.5rem;
-            background: #6366f1;
-            border-radius: 50%;
-            animation: pulse 1.4s ease-in-out infinite;
-        }
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        /* Mobil Responsive */
-        @media (max-width: 1024px) {
-            .prose h1 { font-size: 1.5rem; }
-            .prose h2 { font-size: 1.25rem; }
-            .prose h3 { font-size: 1.1rem; }
+        
+        @media (max-width: 768px) {
+            .prose h1 { font-size: 1.3rem; }
+            .prose h2 { font-size: 1.1rem; }
         }
     </style>
 </head>
-<body class="bg-[#0f1117] text-gray-200 antialiased h-screen flex overflow-hidden">
+<body class="bg-[#0a0c10] text-gray-200 antialiased h-screen flex overflow-hidden">
+
+    <!-- Müzik Player -->
+    <audio id="musicPlayer" loop preload="auto" style="display: none;">
+        <source src="sarki.mp3" type="audio/mpeg">
+    </audio>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-80 bg-[#111827] border-r border-[#1f2937] flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-2xl">
-        <div class="p-5 flex flex-col gap-4 border-b border-[#1f2937] bg-gradient-to-b from-[#111827] to-[#0f172a]">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-80 bg-[#0a0c10] border-r border-[#1a1f2e] flex flex-col transform -translate-x-full lg:translate-x-0 transition-all duration-300 shadow-2xl">
+        <div class="p-5 flex flex-col gap-4 border-b border-[#1a1f2e] bg-gradient-to-b from-[#0a0c10] to-[#07090d]">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-2xl shadow-lg shadow-indigo-500/30">
-                        <i class="fa-solid fa-brain text-2xl text-white"></i>
+                    <div class="gradient-bg p-2.5 rounded-2xl shadow-lg animate-glow">
+                        <i class="fa-solid fa-microchip text-2xl text-white"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent">EMROX AI</h1>
-                        <span class="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">Multi-Agent System</span>
+                        <h1 class="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">EMROX AI</h1>
+                        <div class="flex items-center gap-1 mt-0.5">
+                            <span class="model-badge">Gemini 3.1 Flash Lite</span>
+                            <span class="text-[9px] text-gray-500">5-Ajan</span>
+                        </div>
                     </div>
                 </div>
-                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-[#1f2937] transition-all">
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-[#1a1f2e]">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
             
-            <button onclick="createNewChat()" class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-sm transition-all text-white shadow-lg shadow-indigo-500/30 group">
-                <i class="fa-solid fa-plus text-sm group-hover:rotate-90 transition-transform duration-300"></i>
-                Yeni Sohbet Başlat
+            <button onclick="createNewChat()" class="flex items-center justify-center gap-2 w-full py-3 px-4 gradient-bg hover:opacity-90 rounded-xl font-semibold text-sm transition-all text-white shadow-lg">
+                <i class="fa-solid fa-plus text-sm"></i>
+                Yeni Sohbet
+            </button>
+            
+            <!-- Müzik Kontrol Butonu -->
+            <button id="musicToggleBtn" onclick="toggleMusic()" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#1a1f2e] hover:bg-[#252b3d] border border-[#334155] rounded-xl font-medium text-sm transition-all text-gray-300">
+                <i id="musicIcon" class="fa-solid fa-music text-indigo-400"></i>
+                <span id="musicText">Şarkıyı Aç</span>
             </button>
         </div>
 
         <div class="flex-1 overflow-y-auto p-3 space-y-1" id="chatHistoryList">
-            <div class="text-center text-xs text-gray-600 py-8">
-                <i class="fa-regular fa-message text-2xl mb-2 block"></i>
-                Henüz sohbet yok
+            <div class="text-center text-xs text-gray-600 py-12">
+                <i class="fa-regular fa-comment-dots text-3xl mb-2 block"></i>
+                Sohbet geçmişi boş
             </div>
         </div>
 
-        <div class="p-4 border-t border-[#1f2937] bg-[#0f172a] space-y-2">
-            <div id="apiKeyBadge" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-[#1e293b]">
+        <div class="p-4 border-t border-[#1a1f2e] bg-[#07090d] space-y-2">
+            <div id="apiKeyBadge" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-[#1a1f2e] cursor-pointer" onclick="openModal('settingsModal')">
                 <i class="fa-solid fa-circle-exclamation text-amber-400"></i>
-                API Anahtarı Ayarlanmamış
+                <span>API Anahtarı Eksik</span>
             </div>
-            <button onclick="openModal('settingsModal')" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-[#1e293b] transition-all text-sm font-medium">
+            <button onclick="openModal('settingsModal')" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-[#1a1f2e] transition-all text-sm font-medium">
                 <i class="fa-solid fa-sliders-h text-lg"></i>
-                Sistem ve API Ayarları
+                Sistem Ayarları
             </button>
         </div>
     </aside>
 
     <!-- Ana İçerik -->
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gradient-to-b from-[#0f1117] to-[#0a0c10]">
-        <header class="h-16 border-b border-[#1f2937] bg-[#111827]/80 backdrop-blur-xl px-4 flex items-center justify-between z-30">
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gradient-to-b from-[#0a0c10] to-[#05060a]">
+        <header class="h-16 border-b border-[#1a1f2e] bg-[#0a0c10]/80 backdrop-blur-xl px-4 flex items-center justify-between z-30">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-[#1f2937] transition-all">
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-[#1a1f2e]">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 <div class="flex flex-col">
-                    <h2 id="currentChatTitle" class="font-semibold text-sm md:text-base text-gray-100 tracking-wide line-clamp-1">Yeni Sohbet</h2>
-                    <span id="agentStatus" class="text-xs text-gray-500 flex items-center gap-1.5 font-medium">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                        Sistem Hazır
-                    </span>
+                    <h2 id="currentChatTitle" class="font-semibold text-sm md:text-base text-gray-100">Yeni Sohbet</h2>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span id="agentStatus" class="text-xs text-gray-500 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                            Sistem Hazır
+                        </span>
+                        <span id="musicStatus" class="text-xs text-gray-600 hidden">🎵 Müzik Kapalı</span>
+                    </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
-                <button id="btnPdfExport" onclick="exportToPDF()" disabled class="flex items-center gap-2 px-3 py-1.5 bg-[#1e293b] border border-[#334155] hover:border-indigo-500/50 text-xs md:text-sm text-gray-300 hover:text-white font-medium rounded-lg opacity-50 cursor-not-allowed transition-all">
+                <div class="hidden md:flex items-center gap-1 mr-2">
+                    <span class="text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-full">gemini-3.1-flash-lite</span>
+                </div>
+                <button id="btnPdfExport" onclick="exportToPDF()" disabled class="flex items-center gap-2 px-3 py-1.5 bg-[#1a1f2e] border border-[#334155] hover:border-indigo-500/50 text-xs md:text-sm text-gray-300 hover:text-white font-medium rounded-lg opacity-50 cursor-not-allowed">
                     <i class="fa-solid fa-file-pdf text-rose-500"></i>
-                    <span class="hidden sm:inline">PDF Rapor</span>
+                    <span class="hidden sm:inline">PDF</span>
                 </button>
-                <button id="btnSlideExport" onclick="exportToSlides()" disabled class="flex items-center gap-2 px-3 py-1.5 bg-[#1e293b] border border-[#334155] hover:border-indigo-500/50 text-xs md:text-sm text-gray-300 hover:text-white font-medium rounded-lg opacity-50 cursor-not-allowed transition-all">
+                <button id="btnSlideExport" onclick="exportToSlides()" disabled class="flex items-center gap-2 px-3 py-1.5 bg-[#1a1f2e] border border-[#334155] hover:border-indigo-500/50 text-xs md:text-sm text-gray-300 hover:text-white font-medium rounded-lg opacity-50 cursor-not-allowed">
                     <i class="fa-solid fa-chalkboard-user text-amber-500"></i>
-                    <span class="hidden sm:inline">Slayt Sunum</span>
+                    <span class="hidden sm:inline">Slayt</span>
                 </button>
             </div>
         </header>
@@ -315,41 +268,42 @@
         <div id="messagesWrapper" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth">
             <div id="welcomePanel" class="max-w-3xl mx-auto pt-12 text-center space-y-8">
                 <div class="space-y-4">
-                    <div class="inline-flex p-4 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full">
-                        <i class="fa-solid fa-robot text-5xl text-indigo-400"></i>
+                    <div class="inline-flex p-5 gradient-bg rounded-full animate-float">
+                        <i class="fa-solid fa-brain text-5xl text-white"></i>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent">
-                        EMROX AI Deneyimine Hoş Geldiniz
+                    <h3 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        EMROX AI | Gemini 3.1 Flash Lite
                     </h3>
                     <p class="text-gray-400 text-sm md:text-base max-w-md mx-auto">
-                        5 farklı uzman yapay zeka ajanı aynı anda çalışır, görev dağılımı yapar ve tek bir kusursuz yanıt sunar.
+                        🚀 5 farklı uzman ajan | Hepsi Gemini 3.1 Flash Lite ile çalışır<br>
+                        🎵 "şarkı aç" / "müzik kapat" ile müzik kontrolü
                     </p>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
-                    <div onclick="fillSuggestedPrompt('Bana modern, responsive bir e-ticaret ürün kartı bileşeni kodla. HTML, CSS ve JavaScript ayrı olsun. Animasyonlu ve şık olsun.')" class="p-4 bg-[#111827] border border-[#1f2937] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
+                    <div onclick="fillSuggestedPrompt('Bana modern, dark mode destekli bir dashboard arayüzü kodla. HTML, CSS ve JavaScript ayrı olsun. Animasyonlu grafikler içersin.')" class="p-4 bg-[#0a0c10] border border-[#1a1f2e] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
                         <div class="flex items-center gap-2 text-indigo-400 font-medium text-sm mb-1">
-                            <i class="fa-brands fa-html5"></i> Frontend Geliştirme
+                            <i class="fa-brands fa-react"></i> Frontend Uzmanı
                         </div>
-                        <p class="text-xs text-gray-500 group-hover:text-gray-400">HTML/CSS/JS bileşenleri, animasyonlu arayüzler</p>
+                        <p class="text-xs text-gray-500 group-hover:text-gray-400">Modern web arayüzleri, animasyonlar</p>
                     </div>
-                    <div onclick="fillSuggestedPrompt('Roblox oyununda para birimi ve seviye sistemi içeren bir leaderboard scripti yaz. Luau dilinde, DataStore kullanan, optimize edilmiş olsun.')" class="p-4 bg-[#111827] border border-[#1f2937] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
-                        <div class="flex items-center gap-2 text-violet-400 font-medium text-sm mb-1">
-                            <i class="fa-solid fa-gamepad"></i> Roblox Luau
+                    <div onclick="fillSuggestedPrompt('Roblox için otomatik silah sistemi ve mermi sayacı içeren bir Luau scripti yaz. DataStore ile kayıt yapsın.')" class="p-4 bg-[#0a0c10] border border-[#1a1f2e] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
+                        <div class="flex items-center gap-2 text-purple-400 font-medium text-sm mb-1">
+                            <i class="fa-solid fa-gamepad"></i> Roblox Uzmanı
                         </div>
-                        <p class="text-xs text-gray-500 group-hover:text-gray-400">Roblox Studio uyumlu Luau scriptleri</p>
+                        <p class="text-xs text-gray-500 group-hover:text-gray-400">Luau script, oyun mekanikleri</p>
                     </div>
-                    <div onclick="fillSuggestedPrompt('Yapay zekanın gelecekteki iş dünyasına etkilerini anlatan profesyonel bir rapor ve sunum taslağı hazırla. Başlıklar, alt başlıklar, istatistikler ve öngörüler içersin.')" class="p-4 bg-[#111827] border border-[#1f2937] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
+                    <div onclick="fillSuggestedPrompt('Yapay zeka ve iş dünyası 2030 raporu hazırla. İstatistikler, grafikler, öngörüler içersin. Profesyonel sunum formatında olsun.')" class="p-4 bg-[#0a0c10] border border-[#1a1f2e] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
                         <div class="flex items-center gap-2 text-amber-400 font-medium text-sm mb-1">
-                            <i class="fa-solid fa-chart-line"></i> Rapor & Slayt
+                            <i class="fa-solid fa-chart-line"></i> Rapor Uzmanı
                         </div>
-                        <p class="text-xs text-gray-500 group-hover:text-gray-400">PDF ve slayt formatında profesyonel çıktılar</p>
+                        <p class="text-xs text-gray-500 group-hover:text-gray-400">PDF rapor, slayt sunum</p>
                     </div>
-                    <div onclick="fillSuggestedPrompt('Merhaba! Bugün nasılsın? Yapay zeka ve gelecek teknolojiler hakkında sohbet edelim mi?')" class="p-4 bg-[#111827] border border-[#1f2937] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
+                    <div onclick="fillSuggestedPrompt('Merhaba! Bugün nasılsın? Yapay zeka ve gelecek hakkında sohbet edelim mi?')" class="p-4 bg-[#0a0c10] border border-[#1a1f2e] hover:border-indigo-500/50 rounded-xl cursor-pointer transition-all hover:bg-[#1a1f2e] group">
                         <div class="flex items-center gap-2 text-emerald-400 font-medium text-sm mb-1">
-                            <i class="fa-regular fa-comments"></i> Serbest Sohbet
+                            <i class="fa-regular fa-comments"></i> Sohbet Uzmanı
                         </div>
-                        <p class="text-xs text-gray-500 group-hover:text-gray-400">Doğal dilde sohbet, samimi yanıtlar</p>
+                        <p class="text-xs text-gray-500 group-hover:text-gray-400">Doğal dil sohbeti</p>
                     </div>
                 </div>
             </div>
@@ -358,29 +312,26 @@
         </div>
 
         <!-- Giriş Alanı -->
-        <footer class="p-4 bg-gradient-to-t from-[#0f1117] to-transparent border-t border-[#1f2937]">
+        <footer class="p-4 bg-gradient-to-t from-[#0a0c10] to-transparent border-t border-[#1a1f2e]">
             <div class="max-w-4xl mx-auto relative">
-                <div class="bg-[#111827] border border-[#1f2937] focus-within:border-indigo-500 rounded-2xl p-3 transition-all shadow-xl">
-                    <textarea id="userInput" rows="1" oninput="autoGrowTextarea(this)" placeholder="EMROX AI çoklu ajan ekibine bir görev verin veya sohbet edin..." class="w-full bg-transparent border-0 outline-none resize-none px-2 py-2 text-sm md:text-base text-gray-100 placeholder-gray-500 max-h-40 focus:ring-0"></textarea>
+                <div class="bg-[#0a0c10] border border-[#1a1f2e] focus-within:border-indigo-500 rounded-2xl p-3 transition-all shadow-xl">
+                    <textarea id="userInput" rows="1" oninput="autoGrowTextarea(this)" placeholder="EMROX AI'a bir görev verin veya sohbet edin... (Örn: 'şarkı aç', 'müzik kapat', 'bana kod yaz')" class="w-full bg-transparent border-0 outline-none resize-none px-2 py-2 text-sm md:text-base text-gray-100 placeholder-gray-600 max-h-40 focus:ring-0"></textarea>
                     
-                    <div class="flex items-center justify-between px-2 pt-2 border-t border-[#1f2937]/50">
-                        <div class="flex items-center gap-2 text-[10px] text-gray-600">
-                            <i class="fa-solid fa-shield-halved text-indigo-500"></i>
-                            <span>Veriler yerel cihazınızda güvende</span>
+                    <div class="flex items-center justify-between px-2 pt-2 border-t border-[#1a1f2e]/50">
+                        <div class="flex items-center gap-2 text-[10px] text-gray-500">
+                            <i class="fa-brands fa-google text-indigo-500"></i>
+                            <span>Gemini 3.1 Flash Lite • 5-Ajan</span>
                         </div>
                         
                         <div class="flex items-center gap-2">
-                            <button id="btnStop" onclick="abortGeneration()" class="hidden items-center gap-1.5 px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 border border-rose-500/30 text-rose-400 hover:text-white font-medium text-xs rounded-xl transition-all">
+                            <button id="btnStop" onclick="abortGeneration()" class="hidden items-center gap-1.5 px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 border border-rose-500/30 text-rose-400 hover:text-white font-medium text-xs rounded-xl">
                                 <i class="fa-solid fa-stop text-[10px]"></i> Durdur
                             </button>
-                            <button id="btnSend" onclick="handleSendMessage()" class="p-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button id="btnSend" onclick="handleSendMessage()" class="p-2.5 gradient-bg text-white rounded-xl shadow-lg transition-all disabled:opacity-50">
                                 <i class="fa-solid fa-paper-plane text-sm"></i>
                             </button>
                         </div>
                     </div>
-                </div>
-                <div class="text-center text-[10px] text-gray-600 mt-3">
-                    ⚡ EMROX AI • 5-Ajan Mimarisi • Gemini API ile çalışır
                 </div>
             </div>
         </footer>
@@ -388,58 +339,56 @@
 
     <!-- Ayarlar Modali -->
     <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-[#111827] border border-[#1f2937] rounded-2xl w-full max-w-lg mx-4 overflow-hidden shadow-2xl">
-            <div class="p-5 bg-gradient-to-r from-[#1a1f2e] to-[#111827] border-b border-[#1f2937] flex items-center justify-between">
-                <h3 class="font-bold text-gray-100 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders-h text-indigo-400"></i>
-                    Sistem ve API Ayarları
+        <div class="bg-[#0a0c10] border border-[#1a1f2e] rounded-2xl w-full max-w-lg mx-4 overflow-hidden shadow-2xl">
+            <div class="p-5 gradient-bg flex items-center justify-between">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders-h"></i>
+                    Sistem Ayarları
                 </h3>
-                <button onclick="closeModal('settingsModal')" class="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-[#1f2937] transition-all">
+                <button onclick="closeModal('settingsModal')" class="text-white hover:bg-white/20 p-1 rounded-lg">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
             <div class="p-6 space-y-6">
                 <div class="space-y-2">
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">
-                        <i class="fa-solid fa-key text-indigo-400 mr-1"></i> Gemini API Anahtarı
+                        <i class="fa-brands fa-google text-indigo-400 mr-1"></i> Gemini API Anahtarı
                     </label>
-                    <input type="password" id="inputApiKey" placeholder="AIzaSy..." class="w-full bg-[#0f1117] border border-[#1f2937] rounded-xl px-4 py-3 text-sm text-gray-100 outline-none focus:border-indigo-500 transition-all font-mono">
-                    <p class="text-[11px] text-gray-500 leading-relaxed">
-                        API anahtarınız asla sunucularımıza gitmez. Doğrudan tarayıcınızdan Google Gemini API'ye güvenli istek gönderilir.
-                    </p>
+                    <input type="password" id="inputApiKey" placeholder="AIzaSy..." class="w-full bg-[#05060a] border border-[#1a1f2e] rounded-xl px-4 py-3 text-sm text-gray-100 outline-none focus:border-indigo-500 transition-all font-mono">
+                    <p class="text-[11px] text-gray-500">Tüm ajanlar <strong class="text-indigo-400">gemini-3.1-flash-lite</strong> modelini kullanır. Token limiti yüksek, hızlı ve ekonomik!</p>
                 </div>
 
-                <div class="p-4 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-xl border border-indigo-500/20">
-                    <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-microchip"></i> 5-Ajan Mimarisi
+                <div class="p-4 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl border border-indigo-500/20">
+                    <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">
+                        <i class="fa-solid fa-microchip"></i> 5-Ajan Mimarisi (Hepsi Gemini 3.1 Flash Lite)
                     </h4>
-                    <div class="space-y-2 text-xs text-gray-400">
-                        <div class="flex items-start gap-2">
-                            <span class="text-indigo-400">🎯 Ajan 1</span>
-                            <span>Orkestratör - Görev analizi ve planlama</span>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center justify-between p-2 bg-[#05060a] rounded-lg">
+                            <span><i class="fa-solid fa-robot text-indigo-400 mr-2"></i>Ajan 1 - Orkestratör</span>
+                            <span class="text-indigo-300 text-[10px]">🧠 gemini-3.1-flash-lite</span>
                         </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-blue-400">💻 Ajan 2</span>
-                            <span>Frontend Uzmanı - HTML/CSS/JS geliştirme</span>
+                        <div class="flex items-center justify-between p-2 bg-[#05060a] rounded-lg">
+                            <span><i class="fa-solid fa-code text-blue-400 mr-2"></i>Ajan 2 - Frontend</span>
+                            <span class="text-blue-300 text-[10px]">💻 gemini-3.1-flash-lite</span>
                         </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-purple-400">🎮 Ajan 3</span>
-                            <span>Roblox Uzmanı - Luau script optimizasyonu</span>
+                        <div class="flex items-center justify-between p-2 bg-[#05060a] rounded-lg">
+                            <span><i class="fa-solid fa-gamepad text-purple-400 mr-2"></i>Ajan 3 - Roblox</span>
+                            <span class="text-purple-300 text-[10px]">🎮 gemini-3.1-flash-lite</span>
                         </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-amber-400">📄 Ajan 4</span>
-                            <span>Dokümantasyon - PDF/Slayt içerik üretimi</span>
+                        <div class="flex items-center justify-between p-2 bg-[#05060a] rounded-lg">
+                            <span><i class="fa-solid fa-file-alt text-amber-400 mr-2"></i>Ajan 4 - Doküman</span>
+                            <span class="text-amber-300 text-[10px]">📄 gemini-3.1-flash-lite</span>
                         </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-emerald-400">✨ Ajan 5</span>
-                            <span>Sentezci - Kalite kontrol ve birleştirme</span>
+                        <div class="flex items-center justify-between p-2 bg-[#05060a] rounded-lg">
+                            <span><i class="fa-solid fa-brain text-emerald-400 mr-2"></i>Ajan 5 - Sentez</span>
+                            <span class="text-emerald-300 text-[10px]">✨ gemini-3.1-flash-lite</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="p-5 bg-[#1a1f2e] border-t border-[#1f2937] flex justify-end gap-3">
-                <button onclick="closeModal('settingsModal')" class="px-5 py-2 bg-transparent border border-[#334155] text-gray-400 hover:text-white font-medium text-sm rounded-xl transition-all">İptal</button>
-                <button onclick="saveSettings()" class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium text-sm rounded-xl shadow-lg transition-all">Kaydet</button>
+            <div class="p-5 bg-[#05060a] border-t border-[#1a1f2e] flex justify-end gap-3">
+                <button onclick="closeModal('settingsModal')" class="px-5 py-2 bg-transparent border border-[#334155] text-gray-400 hover:text-white rounded-xl">İptal</button>
+                <button onclick="saveSettings()" class="px-6 py-2 gradient-bg text-white rounded-xl shadow-lg">Kaydet</button>
             </div>
         </div>
     </div>
@@ -449,34 +398,53 @@
         let conversations = [];
         let currentChatId = null;
         let abortController = null;
+        let isMusicPlaying = false;
+        let musicPlayer = null;
 
-        // ========== BAŞLANGIÇ ==========
-        window.addEventListener('DOMContentLoaded', () => {
-            loadSettings();
-            loadConversations();
+        // GEMINI 3.1 FLASH LITE MODEL ADI
+        const GEMINI_MODEL = 'gemini-3.1-flash-lite';
+
+        // ========== MÜZİK KONTROLÜ ==========
+        function initMusic() {
+            musicPlayer = document.getElementById('musicPlayer');
+        }
+
+        function toggleMusic() {
+            if (!musicPlayer) initMusic();
             
-            // Markdown renderer yapılandırması
-            const renderer = new marked.Renderer();
-            renderer.code = function(code, language) {
-                const lang = (language || 'text').toLowerCase();
-                const validLang = hljs.getLanguage(lang) ? lang : 'plaintext';
-                const highlighted = hljs.highlight(code, { language: validLang }).value;
-                const safeCode = btoa(unescape(encodeURIComponent(code)));
-                
-                return `
-                    <div class="code-block-container">
-                        <div class="code-block-header">
-                            <span><i class="fa-regular fa-file-code mr-2"></i>${validLang.toUpperCase()}</span>
-                            <button class="code-block-copy-btn" onclick="copyCode('${safeCode}', this)">
-                                <i class="fa-regular fa-copy mr-1"></i> Kopyala
-                            </button>
-                        </div>
-                        <pre><code class="hljs language-${validLang}">${highlighted}</code></pre>
-                    </div>
-                `;
-            };
-            marked.setOptions({ renderer, breaks: true, gfm: true });
-        });
+            if (isMusicPlaying) {
+                musicPlayer.pause();
+                isMusicPlaying = false;
+                document.getElementById('musicIcon').className = 'fa-solid fa-music text-indigo-400';
+                document.getElementById('musicText').innerText = 'Şarkıyı Aç';
+                document.getElementById('musicStatus').innerHTML = '🎵 Müzik Kapalı';
+                document.getElementById('musicStatus').classList.add('hidden');
+                showToast('🎵 Müzik durduruldu', 'info');
+            } else {
+                musicPlayer.play().catch(e => {
+                    showToast('⚠️ sarki.mp3 dosyası bulunamadı!', 'error');
+                });
+                isMusicPlaying = true;
+                document.getElementById('musicIcon').className = 'fa-solid fa-stop-circle text-rose-400';
+                document.getElementById('musicText').innerText = 'Şarkıyı Kapat';
+                document.getElementById('musicStatus').innerHTML = '🎵 Müzik Çalıyor 🎶';
+                document.getElementById('musicStatus').classList.remove('hidden');
+                showToast('🎵 Şarkı başladı!', 'success');
+            }
+        }
+
+        function checkMusicCommand(text) {
+            const lowerText = text.toLowerCase();
+            if (lowerText.includes('şarkı aç') || lowerText.includes('müzik aç') || lowerText.includes('şarkıyı aç')) {
+                if (!isMusicPlaying) toggleMusic();
+                return true;
+            }
+            if (lowerText.includes('şarkı kapat') || lowerText.includes('müzik kapat') || lowerText.includes('şarkıyı kapat')) {
+                if (isMusicPlaying) toggleMusic();
+                return true;
+            }
+            return false;
+        }
 
         // ========== YARDIMCI FONKSİYONLAR ==========
         function toggleSidebar() {
@@ -502,8 +470,13 @@
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            toast.className = `toast-notification bg-${type === 'success' ? 'indigo' : 'rose'}-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in`;
-            toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>${message}`;
+            const colors = { 
+                success: 'from-indigo-600 to-purple-600', 
+                error: 'from-rose-600 to-red-600', 
+                info: 'from-blue-600 to-cyan-600' 
+            };
+            toast.className = `toast-notification bg-gradient-to-r ${colors[type]} text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in`;
+            toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-2"></i>${message}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
@@ -522,6 +495,7 @@
                 setTimeout(() => {
                     btn.innerHTML = '<i class="fa-regular fa-copy mr-1"></i> Kopyala';
                 }, 2000);
+                showToast('Kod kopyalandı!', 'success');
             } catch (err) {
                 showToast('Kopyalama başarısız', 'error');
             }
@@ -545,12 +519,10 @@
             if (isLoading) {
                 sendBtn.disabled = true;
                 stopBtn.classList.remove('hidden');
-                stopBtn.classList.add('flex');
                 textarea.disabled = true;
             } else {
                 sendBtn.disabled = false;
                 stopBtn.classList.add('hidden');
-                stopBtn.classList.remove('flex');
                 textarea.disabled = false;
                 textarea.value = '';
                 autoGrowTextarea(textarea);
@@ -564,7 +536,7 @@
             localStorage.setItem('emrox_api_key', key);
             updateApiKeyBadge(key);
             closeModal('settingsModal');
-            showToast('API anahtarı kaydedildi', 'success');
+            showToast('API anahtarı kaydedildi (Gemini 3.1 Flash Lite)', 'success');
         }
 
         function loadSettings() {
@@ -575,13 +547,12 @@
 
         function updateApiKeyBadge(key) {
             const badge = document.getElementById('apiKeyBadge');
-            if (key) {
-                badge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> API Anahtarı Aktif';
-                badge.className = "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            if (key && key.startsWith('AIza')) {
+                badge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>API Anahtarı Aktif ✅</span>';
+                badge.className = "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 cursor-pointer";
             } else {
-                badge.innerHTML = '<i class="fa-solid fa-circle-exclamation text-amber-400"></i> API Anahtarı Eksik';
-                badge.className = "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 cursor-pointer animate-pulse";
-                badge.onclick = () => openModal('settingsModal');
+                badge.innerHTML = '<i class="fa-solid fa-circle-exclamation text-amber-400"></i><span>API Anahtarı Eksik ⚠️</span>';
+                badge.className = "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-400 cursor-pointer animate-pulse";
             }
         }
 
@@ -610,12 +581,12 @@
             }
             
             list.innerHTML = conversations.map(chat => `
-                <div onclick="switchChat('${chat.id}')" class="flex items-center justify-between group px-3 py-2.5 rounded-xl cursor-pointer transition-all ${chat.id === currentChatId ? 'bg-[#1e293b] text-white border border-[#334155]' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1f2e]'}">
+                <div onclick="switchChat('${chat.id}')" class="flex items-center justify-between group px-3 py-2.5 rounded-xl cursor-pointer transition-all ${chat.id === currentChatId ? 'bg-[#1a1f2e] text-white border border-[#334155]' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1f2e]/50'}">
                     <div class="flex items-center gap-2.5 overflow-hidden flex-1">
                         <i class="fa-regular fa-message text-sm ${chat.id === currentChatId ? 'text-indigo-400' : 'text-gray-500'}"></i>
                         <span class="truncate text-sm">${escapeHtml(chat.title)}</span>
                     </div>
-                    <button onclick="event.stopPropagation(); deleteChat('${chat.id}')" class="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-rose-400 p-1 rounded transition-all">
+                    <button onclick="event.stopPropagation(); deleteChat('${chat.id}')" class="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-rose-400 p-1 rounded">
                         <i class="fa-regular fa-trash-can text-xs"></i>
                     </button>
                 </div>
@@ -683,24 +654,44 @@
             }
             
             welcome.classList.add('hidden');
+            
+            const renderer = new marked.Renderer();
+            renderer.code = function(code, language) {
+                const lang = (language || 'text').toLowerCase();
+                const validLang = hljs.getLanguage(lang) ? lang : 'plaintext';
+                const highlighted = hljs.highlight(code, { language: validLang }).value;
+                const safeCode = btoa(unescape(encodeURIComponent(code)));
+                return `
+                    <div class="code-block-container">
+                        <div class="code-block-header">
+                            <span><i class="fa-regular fa-file-code mr-2"></i>${validLang.toUpperCase()} | Gemini 3.1 FL</span>
+                            <button class="code-block-copy-btn" onclick="copyCode('${safeCode}', this)"><i class="fa-regular fa-copy mr-1"></i> Kopyala</button>
+                        </div>
+                        <pre><code class="hljs language-${validLang}">${highlighted}</code></pre>
+                    </div>
+                `;
+            };
+            marked.setOptions({ renderer, breaks: true, gfm: true });
+            
             list.innerHTML = chat.messages.map(msg => {
                 if (msg.role === 'user') {
                     return `
                         <div class="flex justify-end items-start gap-3 pl-12 animate-fade-in">
-                            <div class="bg-gradient-to-r from-[#1e293b] to-[#1a1f2e] border border-[#334155] text-gray-100 rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-2xl shadow-md leading-relaxed whitespace-pre-wrap">
+                            <div class="bg-gradient-to-r from-[#1a1f2e] to-[#151a28] border border-[#334155] text-gray-100 rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-2xl shadow-md">
                                 ${escapeHtml(msg.content)}
                             </div>
-                            <div class="w-8 h-8 rounded-xl bg-gray-700 flex items-center justify-center text-gray-300 text-xs font-bold shadow-md">👤</div>
+                            <div class="w-8 h-8 rounded-xl bg-gray-700 flex items-center justify-center text-white text-xs shadow-md">👤</div>
                         </div>
                     `;
                 } else {
                     const formattedHtml = marked.parse(msg.content);
                     return `
                         <div class="flex justify-start items-start gap-3 pr-12 animate-fade-in">
-                            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs shadow-md">
+                            <div class="w-8 h-8 rounded-xl gradient-bg flex items-center justify-center text-white text-xs shadow-md">
                                 <i class="fa-solid fa-robot text-xs"></i>
                             </div>
-                            <div class="bg-[#111827]/50 border border-[#1f2937] text-gray-200 rounded-2xl rounded-tl-sm px-5 py-4 text-sm max-w-full overflow-x-auto shadow-sm prose">
+                            <div class="bg-[#0a0c10]/50 border border-[#1a1f2e] text-gray-200 rounded-2xl rounded-tl-sm px-5 py-4 text-sm max-w-full overflow-x-auto shadow-sm prose">
+                                <div class="text-right mb-2"><span class="model-badge text-[8px]">gemini-3.1-flash-lite</span></div>
                                 ${formattedHtml}
                             </div>
                         </div>
@@ -719,23 +710,28 @@
             }
         }
 
-        // ========== GEMINI API ÇAĞRISI ==========
-        async function callGeminiAPI(prompt, apiKey, signal) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // ========== GEMINI 3.1 FLASH LITE API ÇAĞRISI ==========
+        async function callGeminiAPI(prompt, apiKey, agentName, signal) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
             
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 4096 }
+                    generationConfig: { 
+                        temperature: 0.7, 
+                        maxOutputTokens: 8192,
+                        topP: 0.95,
+                        topK: 40
+                    }
                 }),
                 signal: signal
             });
 
             if (!response.ok) {
                 const errData = await response.json();
-                throw new Error(errData.error?.message || 'API hatası oluştu');
+                throw new Error(errData.error?.message || `API hatası (${agentName})`);
             }
 
             const data = await response.json();
@@ -746,13 +742,20 @@
         async function handleSendMessage() {
             const apiKey = localStorage.getItem('emrox_api_key');
             if (!apiKey) {
-                showToast('Lütfen önce API anahtarınızı ayarlayın', 'error');
+                showToast('Lütfen API anahtarınızı ayarlayın', 'error');
                 openModal('settingsModal');
                 return;
             }
 
             const userText = document.getElementById('userInput').value.trim();
             if (!userText) return;
+
+            // Müzik komutu kontrolü
+            if (checkMusicCommand(userText)) {
+                document.getElementById('userInput').value = '';
+                autoGrowTextarea(document.getElementById('userInput'));
+                return;
+            }
 
             const chat = conversations.find(c => c.id === currentChatId);
             if (!chat) return;
@@ -768,9 +771,9 @@
             abortController = new AbortController();
 
             try {
-                updateStatusIndicator('Orkestratör planlıyor...', 'bg-indigo-500');
+                updateStatusIndicator('🧠 Ajan 1 (Orkestratör) planlıyor...', 'bg-indigo-500');
                 
-                const orchestratorPrompt = `Sen EMROX AI Orkestratör Ajanısın. Kullanıcı girdisini analiz et ve JSON formatında yanıt ver.
+                const orchestratorPrompt = `Sen EMROX AI Orkestratör Ajanısın (Gemini 3.1 Flash Lite). Kullanıcı girdisini analiz et ve sadece JSON formatında yanıt ver.
 Kullanıcı: "${userText}"
 
 Yanıt formatı (sadece JSON, başka şey yazma):
@@ -781,15 +784,9 @@ Yanıt formatı (sadece JSON, başka şey yazma):
     "roblox": "roblox görevi varsa buraya yaz, yoksa boş string", 
     "dokuman": "dokümantasyon görevi varsa buraya yaz, yoksa boş string"
   }
-}
+}`;
 
-Kurallar:
-- Sadece sohbet ise "SOHBET"
-- Kod/website istiyorsa frontend'e yaz
-- Roblox/Luau istiyorsa roblox'a yaz
-- Rapor/sunum istiyorsa dokuman'a yaz`;
-
-                const orchResponse = await callGeminiAPI(orchestratorPrompt, apiKey, abortController.signal);
+                const orchResponse = await callGeminiAPI(orchestratorPrompt, apiKey, 'Orkestratör', abortController.signal);
                 let blueprint;
                 try {
                     const cleanJson = orchResponse.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -801,71 +798,71 @@ Kurallar:
                 let finalAnswer = "";
 
                 if (blueprint.niyet === "SOHBET") {
-                    updateStatusIndicator('Sohbet yanıtı hazırlanıyor...', 'bg-emerald-500');
-                    const chatPrompt = `Sen EMROX AI'nın sohbet uzmanısın. Kullanıcıyla samimi, sıcak ve bilgili bir şekilde sohbet et.
+                    updateStatusIndicator('💬 Ajan 5 (Sohbet) yanıtlıyor...', 'bg-emerald-500');
+                    const chatPrompt = `Sen EMROX AI'nın sohbet uzmanısın (Gemini 3.1 Flash Lite). Kullanıcıyla samimi, sıcak ve bilgili bir şekilde sohbet et.
 Kullanıcı: ${userText}
 
 Yanıtın doğal, akıcı ve yardımsever olsun.`;
-                    finalAnswer = await callGeminiAPI(chatPrompt, apiKey, abortController.signal);
+                    finalAnswer = await callGeminiAPI(chatPrompt, apiKey, 'Sohbet Uzmanı', abortController.signal);
                 } else {
                     const promises = [];
-                    const agentNames = [];
+                    const agentInfos = [];
                     
                     if (blueprint.gorevler.frontend) {
-                        updateStatusIndicator('Frontend uzmanı kodluyor...', 'bg-blue-500');
-                        const p = callGeminiAPI(`Sen EMROX AI Frontend Uzmanısın. Kullanıcının isteğine göre kaliteli HTML/CSS/JS kodu üret.
+                        updateStatusIndicator('💻 Ajan 2 (Frontend) kodluyor...', 'bg-blue-500');
+                        const p = callGeminiAPI(`Sen EMROX AI Frontend Uzmanısın (Gemini 3.1 Flash Lite). Kaliteli HTML/CSS/JS kodu üret.
 İstek: ${blueprint.gorevler.frontend}
 
-Kodları markdown blokları halinde ver.`, apiKey, abortController.signal);
+Kodları markdown blokları halinde (\`\`\`html, \`\`\`css, \`\`\`javascript) ver.`, apiKey, 'Frontend', abortController.signal);
                         promises.push(p);
-                        agentNames.push("Frontend Geliştirme");
+                        agentInfos.push({ name: "Frontend Geliştirme", emoji: "💻" });
                     }
                     if (blueprint.gorevler.roblox) {
-                        updateStatusIndicator('Roblox uzmanı script yazıyor...', 'bg-purple-500');
-                        const p = callGeminiAPI(`Sen EMROX AI Roblox Luau Uzmanısın. Optimize edilmiş, hatasız Luau scripti üret.
+                        updateStatusIndicator('🎮 Ajan 3 (Roblox) script yazıyor...', 'bg-purple-500');
+                        const p = callGeminiAPI(`Sen EMROX AI Roblox Luau Uzmanısın (Gemini 3.1 Flash Lite). Optimize edilmiş, hatasız Luau scripti üret.
 İstek: ${blueprint.gorevler.roblox}
 
-Kodu \`\`\`lua blokları içinde ver.`, apiKey, abortController.signal);
+Kodu \`\`\`lua blokları içinde ver.`, apiKey, 'Roblox', abortController.signal);
                         promises.push(p);
-                        agentNames.push("Roblox Geliştirme");
+                        agentInfos.push({ name: "Roblox Geliştirme", emoji: "🎮" });
                     }
                     if (blueprint.gorevler.dokuman) {
-                        updateStatusIndicator('Dokümantasyon hazırlanıyor...', 'bg-amber-500');
-                        const p = callGeminiAPI(`Sen EMROX AI Dokümantasyon Uzmanısın. Profesyonel rapor/sunum içeriği hazırla.
+                        updateStatusIndicator('📄 Ajan 4 (Doküman) hazırlıyor...', 'bg-amber-500');
+                        const p = callGeminiAPI(`Sen EMROX AI Dokümantasyon Uzmanısın (Gemini 3.1 Flash Lite). Profesyonel rapor/sunum içeriği hazırla.
 İstek: ${blueprint.gorevler.dokuman}
 
-Başlıklar, alt başlıklar, maddeler halinde düzenle.`, apiKey, abortController.signal);
+Başlıklar, alt başlıklar, maddeler halinde düzenle.`, apiKey, 'Dokümantasyon', abortController.signal);
                         promises.push(p);
-                        agentNames.push("Dokümantasyon");
+                        agentInfos.push({ name: "Dokümantasyon", emoji: "📄" });
                     }
 
                     const results = await Promise.all(promises);
                     let combined = `## 📋 Kullanıcı Talebi\n${userText}\n\n`;
                     for (let i = 0; i < results.length; i++) {
-                        combined += `### 🤖 ${agentNames[i]} Çıktısı\n${results[i]}\n\n`;
+                        combined += `### ${agentInfos[i].emoji} ${agentInfos[i].name} (Gemini 3.1 Flash Lite)\n${results[i]}\n\n`;
                     }
 
-                    updateStatusIndicator('Sentez yapılıyor...', 'bg-emerald-500');
-                    const synthesisPrompt = `Sen EMROX AI Sentez Uzmanısın. Aşağıdaki uzman çıktılarını birleştir, düzenle ve kullanıcıya mükemmel bir yanıt sun.
+                    updateStatusIndicator('✨ Ajan 5 (Sentez) birleştiriyor...', 'bg-emerald-500');
+                    const synthesisPrompt = `Sen EMROX AI Sentez Uzmanısın (Gemini 3.1 Flash Lite). Aşağıdaki uzman çıktılarını birleştir, düzenle ve kullanıcıya mükemmel bir yanıt sun.
 
 ${combined}
 
-Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
-                    finalAnswer = await callGeminiAPI(synthesisPrompt, apiKey, abortController.signal);
+Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla. Kullanıcıya PDF veya slayt olarak dışa aktarabileceğini hatırlat.`;
+                    finalAnswer = await callGeminiAPI(synthesisPrompt, apiKey, 'Sentez', abortController.signal);
                 }
 
                 chat.messages.push({ role: 'model', content: finalAnswer });
                 saveConversations();
                 renderMessages();
-                updateStatusIndicator('Sistem Hazır', 'bg-emerald-500');
+                updateStatusIndicator('✅ Sistem Hazır (Gemini 3.1 Flash Lite)', 'bg-emerald-500');
 
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     console.error(err);
-                    chat.messages.push({ role: 'model', content: `❌ **Hata Oluştu**\n\n${err.message}\n\nLütfen API anahtarınızı kontrol edin ve tekrar deneyin.` });
+                    chat.messages.push({ role: 'model', content: `❌ **Hata Oluştu**\n\n${err.message}\n\nLütfen API anahtarınızı kontrol edin. Gemini 3.1 Flash Lite modelinin aktif olduğundan emin olun.` });
                     saveConversations();
                     renderMessages();
-                    updateStatusIndicator('Bağlantı Hatası', 'bg-rose-500');
+                    updateStatusIndicator('❌ Hata', 'bg-rose-500');
                     showToast(err.message, 'error');
                 }
             } finally {
@@ -874,7 +871,7 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
             }
         }
 
-        // ========== PDF VE SLAYT DIŞA AKTARIM ==========
+        // ========== PDF VE SLAYT ==========
         function exportToPDF() {
             const chat = conversations.find(c => c.id === currentChatId);
             if (!chat || chat.messages.length === 0) return;
@@ -891,21 +888,19 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
             doc.setFont("helvetica", "normal");
             doc.setTextColor(100);
             doc.text(`Tarih: ${new Date().toLocaleString('tr-TR')}`, 14, 30);
-            doc.text(`Sohbet: ${chat.title}`, 14, 37);
-            doc.line(14, 42, 196, 42);
+            doc.text(`Model: Gemini 3.1 Flash Lite`, 14, 37);
+            doc.text(`Sohbet: ${chat.title}`, 14, 44);
+            doc.line(14, 49, 196, 49);
 
-            let y = 50;
+            let y = 57;
             
             for (const msg of chat.messages) {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
-                }
+                if (y > 270) { doc.addPage(); y = 20; }
                 
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(11);
                 doc.setTextColor(msg.role === 'user' ? 200 : 99, msg.role === 'user' ? 200 : 102, msg.role === 'user' ? 200 : 241);
-                doc.text(msg.role === 'user' ? "👤 Kullanıcı:" : "🤖 EMROX AI:", 14, y);
+                doc.text(msg.role === 'user' ? "👤 Kullanıcı:" : "🤖 EMROX AI (Gemini 3.1 FL):", 14, y);
                 y += 7;
                 
                 doc.setFont("helvetica", "normal");
@@ -914,10 +909,7 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
                 
                 const lines = doc.splitTextToSize(msg.content.replace(/[#*`]/g, ''), 180);
                 for (const line of lines) {
-                    if (y > 280) {
-                        doc.addPage();
-                        y = 20;
-                    }
+                    if (y > 280) { doc.addPage(); y = 20; }
                     doc.text(line, 14, y);
                     y += 5;
                 }
@@ -925,7 +917,7 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
             }
             
             doc.save(`emrox-rapor-${Date.now()}.pdf`);
-            showToast('PDF raporu indiriliyor', 'success');
+            showToast('PDF raporu indiriliyor (Gemini 3.1 Flash Lite)', 'success');
         }
 
         function exportToSlides() {
@@ -952,7 +944,7 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
             if (currentSlide.bullets.length > 0) slides.push(currentSlide);
             
             if (slides.length === 0) {
-                slides.push({ title: "EMROX AI Sunumu", bullets: ["İçerik analiz ediliyor...", "Slayt otomatik oluşturuldu"] });
+                slides.push({ title: "EMROX AI Sunumu", bullets: ["İçerik analiz ediliyor", "Slayt otomatik oluşturuldu", "Model: Gemini 3.1 Flash Lite"] });
             }
 
             const html = `<!DOCTYPE html>
@@ -966,13 +958,15 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
         .slide.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        .gradient-bg { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#0f1117] to-[#0a0c10] text-gray-100 h-screen w-screen flex flex-col overflow-hidden">
-    <header class="flex justify-between items-center px-8 py-4 bg-[#111827]/80 backdrop-blur border-b border-[#1f2937]">
+<body class="bg-gradient-to-br from-[#0a0c10] to-[#05060a] text-gray-100 h-screen w-screen flex flex-col overflow-hidden">
+    <header class="flex justify-between items-center px-8 py-4 bg-[#0a0c10]/80 backdrop-blur border-b border-[#1a1f2e]">
         <div class="flex items-center gap-2">
-            <i class="fa-solid fa-brain text-indigo-400 text-xl"></i>
+            <div class="gradient-bg p-2 rounded-xl"><i class="fa-solid fa-microchip text-white"></i></div>
             <span class="font-bold text-lg">EMROX AI</span>
+            <span class="text-[9px] bg-indigo-500/20 px-2 py-1 rounded-full ml-2">Gemini 3.1 Flash Lite</span>
         </div>
         <span id="slideCounter" class="text-sm text-gray-400">1 / ${slides.length}</span>
     </header>
@@ -980,19 +974,20 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
     <main class="flex-1 flex items-center justify-center p-8">
         ${slides.map((slide, idx) => `
             <div class="slide ${idx === 0 ? 'active' : ''} flex-col items-center text-center max-w-3xl animate-fade-in" data-index="${idx}">
-                <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-indigo-400 bg-clip-text text-transparent mb-8">${escapeHtml(slide.title)}</h1>
+                <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-8">${escapeHtml(slide.title)}</h1>
                 <ul class="text-left space-y-4 text-lg text-gray-300">
                     ${slide.bullets.map(b => `<li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-indigo-400 mt-1"></i><span>${escapeHtml(b)}</span></li>`).join('')}
                 </ul>
+                <div class="mt-8 text-xs text-gray-500">🚀 Gemini 3.1 Flash Lite ile üretilmiştir</div>
             </div>
         `).join('')}
     </main>
     
-    <footer class="flex justify-between items-center px-8 py-4 bg-[#111827]/80 backdrop-blur border-t border-[#1f2937]">
-        <div class="text-xs text-gray-500">EMROX AI Multi-Agent System</div>
+    <footer class="flex justify-between items-center px-8 py-4 bg-[#0a0c10]/80 backdrop-blur border-t border-[#1a1f2e]">
+        <div class="text-xs text-gray-500">EMROX AI • 5-Ajan • Gemini 3.1 Flash Lite</div>
         <div class="flex gap-3">
-            <button onclick="prevSlide()" class="px-5 py-2 bg-[#1e293b] hover:bg-[#334155] rounded-lg transition-all"><i class="fa-solid fa-arrow-left"></i> Geri</button>
-            <button onclick="nextSlide()" class="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-lg transition-all">İleri <i class="fa-solid fa-arrow-right"></i></button>
+            <button onclick="prevSlide()" class="px-5 py-2 bg-[#1a1f2e] hover:bg-[#334155] rounded-lg"><i class="fa-solid fa-arrow-left"></i> Geri</button>
+            <button onclick="nextSlide()" class="px-5 py-2 gradient-bg hover:opacity-90 rounded-lg">İleri <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </footer>
 
@@ -1001,28 +996,13 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
         const total = ${slides.length};
         const slides = document.querySelectorAll('.slide');
         const counter = document.getElementById('slideCounter');
-        
         function updateSlide() {
-            slides.forEach((s, i) => {
-                if (i === current) {
-                    s.classList.add('active');
-                    s.classList.remove('hidden');
-                } else {
-                    s.classList.remove('active');
-                    s.classList.add('hidden');
-                }
-            });
+            slides.forEach((s, i) => { i === current ? (s.classList.add('active'), s.classList.remove('hidden')) : (s.classList.remove('active'), s.classList.add('hidden')); });
             counter.innerText = (current + 1) + ' / ' + total;
         }
-        
         function nextSlide() { if (current < total - 1) { current++; updateSlide(); } }
         function prevSlide() { if (current > 0) { current--; updateSlide(); } }
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
-        });
-        
+        document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') nextSlide(); if (e.key === 'ArrowLeft') prevSlide(); });
         updateSlide();
     <\/script>
 </body>
@@ -1033,8 +1013,38 @@ Yanıtı markdown formatında, düzenli, okunabilir ve profesyonel hazırla.`;
             link.href = URL.createObjectURL(blob);
             link.download = `emrox-sunum-${Date.now()}.html`;
             link.click();
-            showToast('Slayt sunumu hazırlanıyor', 'success');
+            showToast('Slayt sunumu hazırlandı (Gemini 3.1 Flash Lite)', 'success');
         }
+
+        // ========== BAŞLANGIÇ ==========
+        window.addEventListener('DOMContentLoaded', () => {
+            initMusic();
+            loadSettings();
+            loadConversations();
+            
+            const renderer = new marked.Renderer();
+            renderer.code = function(code, language) {
+                const lang = (language || 'text').toLowerCase();
+                const validLang = hljs.getLanguage(lang) ? lang : 'plaintext';
+                const highlighted = hljs.highlight(code, { language: validLang }).value;
+                const safeCode = btoa(unescape(encodeURIComponent(code)));
+                return `
+                    <div class="code-block-container">
+                        <div class="code-block-header">
+                            <span><i class="fa-regular fa-file-code mr-2"></i>${validLang.toUpperCase()} | Gemini 3.1 FL</span>
+                            <button class="code-block-copy-btn" onclick="copyCode('${safeCode}', this)"><i class="fa-regular fa-copy mr-1"></i> Kopyala</button>
+                        </div>
+                        <pre><code class="hljs language-${validLang}">${highlighted}</code></pre>
+                    </div>
+                `;
+            };
+            marked.setOptions({ renderer, breaks: true, gfm: true });
+            
+            // Konsola model bilgisini yazdır
+            console.log('🚀 EMROX AI başlatıldı!');
+            console.log('🤖 Kullanılan Model: gemini-3.1-flash-lite');
+            console.log('🎵 Müzik kontrolü: "şarkı aç" / "şarkı kapat"');
+        });
     </script>
 </body>
 </html>
