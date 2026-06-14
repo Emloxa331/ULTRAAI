@@ -2,468 +2,880 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Swarm Devrimi - Deepseek v4 Pro & Gemini</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMROX AI - Gelişmiş Çoklu Ajan Platformu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root {
-            --bg-main: #0f172a; --bg-panel: #1e293b; --bg-input: #334155;
-            --accent: #3b82f6; --accent-hover: #2563eb;
-            --text-main: #f8fafc; --text-muted: #94a3b8;
-            --border: #475569; --success: #10b981; --error: #ef4444; --warning: #f59e0b;
-            --logo-color: #60a5fa;
-            --deepseek-color: #4ade80;
+        /* Custom Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; }
-
-        /* --- SİDEBAR --- */
-        #sidebar { width: 300px; background-color: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; z-index: 20; height: 100%; }
-        .sidebar-header { padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); }
-        .logo-e { width: 45px; height: 45px; background: linear-gradient(135deg, var(--logo-color), var(--accent)); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
-        .new-chat-btn { background-color: transparent; color: var(--text-main); border: 1px solid var(--border); padding: 12px; margin: 15px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: left; font-weight: bold; font-size: 15px; }
-        .new-chat-btn:hover { background-color: var(--accent); border-color: var(--accent); }
-        .chat-list { flex: 1; overflow-y: auto; padding: 0 10px; }
-        .chat-item-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-radius: 8px; transition: all 0.2s ease; }
-        .chat-item-container:hover, .chat-item-container.active { background-color: var(--bg-input); }
-        .chat-title { padding: 12px; cursor: pointer; color: var(--text-muted); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
-        .chat-item-container:hover .chat-title, .chat-item-container.active .chat-title { color: var(--text-main); }
-        .chat-actions { display: flex; gap: 5px; padding-right: 10px; opacity: 0.5; transition: 0.2s; }
-        .chat-item-container:hover .chat-actions { opacity: 1; }
-        .chat-action-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 5px; border-radius: 4px; }
-        .chat-action-btn:hover { color: var(--text-main); background: var(--border); }
-        .chat-action-btn.delete:hover { color: #fca5a5; background: rgba(239, 68, 68, 0.2); }
-        .sidebar-footer { padding: 15px; border-top: 1px solid var(--border); }
-        .settings-btn { width: 100%; background: var(--bg-input); color: var(--text-main); border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .settings-btn:hover { background: var(--border); }
-
-        /* --- ANA İÇERİK --- */
-        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; height: 100%; min-width: 0; }
-        .mobile-header { display: none; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); align-items: center; z-index: 10; }
-        .chat-container { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; }
-
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulseBorder { 0% { border-color: var(--border); } 50% { border-color: var(--accent); } 100% { border-color: var(--border); } }
-
-        .log-entry { background: var(--bg-panel); padding: 18px; border-radius: 12px; border-left: 5px solid var(--accent); font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; animation: fadeInUp 0.3s ease forwards; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .log-entry.system { border-color: var(--text-muted); color: var(--text-muted); font-style: italic; }
-        .log-entry.error { border-color: var(--error); color: #fca5a5; }
-        .log-entry.warning { border-color: var(--warning); color: #fcd34d; }
-        .log-entry.final { border-color: var(--success); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
-        .log-entry.processing { border-left: 5px solid; animation: pulseBorder 1.5s infinite; }
-
-        .agent-name { font-weight: bold; color: var(--logo-color); margin-bottom: 8px; display: block; font-size: 16px; }
-        .log-entry.final .agent-name { color: var(--success); }
-        .log-entry.error .agent-name { color: var(--error); }
-        .log-entry.warning .agent-name { color: var(--warning); }
-
-        .final-code-box { background: #000; border-radius: 10px; margin-top: 12px; overflow: hidden; border: 1px solid #333; }
-        .final-code-header { background: #111; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-muted); font-weight: bold; border-bottom: 1px solid #333; }
-        .copy-btn { background: var(--accent); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
-        .copy-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
-        pre { margin: 0; padding: 15px; overflow-x: auto; color: #a6e22e; }
-        code { font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 14px; }
-
-        /* --- GİRİŞ ALANI --- */
-        .input-area { padding: 15px 20px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; gap: 12px; padding-bottom: max(15px, env(safe-area-inset-bottom)); z-index: 10; align-items: center; }
-        
-        .control-group { display: flex; flex-direction: column; gap: 8px; min-width: 110px; }
-        
-        .ai-select { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 13px; font-weight: bold; cursor: pointer; outline: none; }
-        .ai-select:focus { border-color: var(--accent); }
-        
-        .loop-container { display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; }
-        .loop-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
-        .loop-input { background: transparent; color: var(--text-main); border: none; font-size: 15px; font-weight: bold; width: 40px; text-align: center; outline: none; }
-        
-        textarea { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; color: var(--text-main); padding: 15px; resize: none; height: 75px; font-size: 15px; transition: 0.3s; }
-        textarea:focus { outline: none; border-color: var(--accent); }
-        .send-btn { background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: white; border: none; border-radius: 12px; padding: 0 25px; height: 75px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(59,130,246,0.4); }
-
-        /* --- AYARLAR MODALI & SEKMELER --- */
-        #settingsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--bg-panel); width: 95%; max-width: 650px; border-radius: 16px; padding: 25px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); animation: fadeInUp 0.3s ease-out; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
-        
-        .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.3s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
-        .tab-btn:hover { color: var(--text-main); }
-        .tab-btn.active[onclick*="gemini"] { color: var(--logo-color); border-bottom-color: var(--logo-color); }
-        .tab-btn.active[onclick*="deepseek"] { color: var(--deepseek-color); border-bottom-color: var(--deepseek-color); }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .api-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px; }
-        .api-grid input { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); padding: 12px; border-radius: 8px; width: 100%; transition: 0.3s; }
-        .api-grid input:focus { border-color: var(--accent); outline: none; }
-        
-        .save-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s; }
-        .save-btn:hover { background: #059669; }
-
-        @media (max-width: 768px) {
-            #sidebar { position: absolute; height: 100dvh; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
-            #sidebar.open { transform: translateX(0); }
-            .mobile-header { display: flex; }
-            .api-grid { grid-template-columns: 1fr; }
-            .chat-container { padding: 15px; }
-            .input-area { flex-wrap: wrap; }
-            .control-group { width: 100%; flex-direction: row; }
-            .ai-select { flex: 1; height: 45px; }
-            .loop-container { flex: 1; height: 45px; }
-            textarea { height: 60px; width: 100%; }
-            .send-btn { width: 100%; height: 45px; }
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        /* Custom Markdown Styles */
+        .prose h1, .prose h2, .prose h3 {
+            color: #f3f4f6;
+            font-weight: 700;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .prose h1 { font-size: 1.5rem; }
+        .prose h2 { font-size: 1.25rem; border-left: 4px solid #6366f1; padding-left: 8px; }
+        .prose h3 { font-size: 1.1rem; }
+        .prose p { margin-bottom: 0.75rem; color: #d1d5db; line-height: 1.6; }
+        .prose ul, .prose ol { margin-left: 1.5rem; margin-bottom: 0.75rem; color: #d1d5db; list-style-type: disc; }
+        .prose ol { list-style-type: decimal; }
+        /* Code Block Wrapper */
+        .code-block-container {
+            position: relative;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid #374151;
+        }
+        .code-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1f2937;
+            padding: 0.5rem 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            border-bottom: 1px solid #374151;
+        }
+        .code-block-copy-btn {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .code-block-copy-btn:hover {
+            color: #ffffff;
+        }
+        pre code {
+            display: block;
+            padding: 1rem !important;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            background: #0d1117 !important;
         }
     </style>
 </head>
-<body>
+<body class="bg-[#111318] text-gray-200 font-sans antialiased h-screen flex overflow-hidden">
 
-    <div id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-e" onclick="toggleSidebar()">E</div>
-            <h2>Swarm AI</h2>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-[#17191e] border-r border-[#23272f] flex flex-col transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex flex-col gap-4 border-b border-[#23272f]">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-tr from-indigo-500 to-violet-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg tracking-wider bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">EMROX AI</h1>
+                        <span class="text-xs text-indigo-400 font-medium tracking-widest uppercase">Multi-Agent</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <button onclick="createNewChat()" class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-[#20242c] hover:bg-[#282d37] border border-[#2e3440] hover:border-indigo-500/50 rounded-xl font-medium text-sm transition-all text-gray-100 group">
+                <i class="fa-solid fa-plus text-indigo-400 group-hover:rotate-90 transition-transform"></i>
+                Yeni Sohbet Başlat
+            </button>
         </div>
-        <button class="new-chat-btn" onclick="createNewChat()">+ Yeni Devrim (Sohbet)</button>
-        <div class="chat-list" id="chatList"></div>
-        <div class="sidebar-footer">
-            <button class="settings-btn" onclick="openSettings()">⚙️ Ayarlar & API</button>
-        </div>
-    </div>
 
-    <div id="main-content">
-        <div class="mobile-header">
-            <div class="logo-e" onclick="toggleSidebar()" style="width: 32px; height: 32px; font-size: 18px;">E</div>
-            <h3 style="margin-left: 15px; font-size: 18px;">Swarm AI</h3>
+        <div class="flex-1 overflow-y-auto p-3 space-y-1" id="chatHistoryList">
+            </div>
+
+        <div class="p-4 border-t border-[#23272f] bg-[#14161a] space-y-2">
+            <div id="apiKeyBadge" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium">
+                </div>
+            <button onclick="openModal('settingsModal')" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-[#20242c] transition-all text-sm font-medium">
+                <i class="fa-solid fa-gear text-lg text-gray-500"></i>
+                Sistem ve API Ayarları
+            </button>
         </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-[#111318]">
         
-        <div class="chat-container" id="chatContainer"></div>
-
-        <div class="input-area">
-            <div class="control-group">
-                <select id="aiModelSelect" class="ai-select">
-                    <option value="gemini">🔹 Gemini (Flash)</option>
-                    <option value="deepseek">🟢 Deepseek (v4 Pro)</option>
-                </select>
-                <div class="loop-container" title="1 seçerseniz her API 1 kez çalışır. 3 seçerseniz API'ler 3 tur döner!">
-                    <span class="loop-label">ÇARPAN</span>
-                    <input type="number" id="loopMultiplier" class="loop-input" min="1" max="50" value="1">
+        <header class="h-16 border-b border-[#23272f] bg-[#17191e]/80 backdrop-blur-md px-4 flex items-center justify-between z-30">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-[#20242c]">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div class="flex flex-col">
+                    <h2 id="currentChatTitle" class="font-semibold text-sm md:text-base text-gray-100 tracking-wide line-clamp-1">Yeni Sohbet</h2>
+                    <span id="agentStatus" class="text-xs text-gray-400 flex items-center gap-1.5 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                        Sistem Hazır
+                    </span>
                 </div>
             </div>
-            <textarea id="promptInput" placeholder="Sürünün yapmasını istediğin devasa kodlamayı anlat..."></textarea>
-            <button class="send-btn" onclick="startRevolution()">Gönder</button>
+
+            <div class="flex items-center gap-2">
+                <button id="btnPdfExport" onclick="exportToPDF()" disabled class="flex items-center gap-2 px-3 py-1.5 bg-[#20242c] border border-[#2e3440] hover:border-indigo-500/30 text-xs md:text-sm text-gray-300 hover:text-white font-medium rounded-lg opacity-50 cursor-not-allowed transition-all">
+                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                    PDF Rapor İndir
+                </button>
+                <button id="btnSlideExport" onclick="exportToSlides()" disabled class="flex items-center gap-2 px-3 py-1.5 bg-[#20242c] border border-[#2e3440] hover:border-indigo-500/30 text-xs md:text-sm text-gray-300 hover:text-white font-medium rounded-lg opacity-50 cursor-not-allowed transition-all">
+                    <i class="fa-solid fa-play text-amber-500"></i>
+                    Slayt Gösterisi Yap
+                </button>
+            </div>
+        </header>
+
+        <div id="messagesWrapper" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth">
+            <div id="welcomePanel" class="max-w-2xl mx-auto pt-12 text-center space-y-8">
+                <div class="space-y-3">
+                    <h3 class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent">EMROX AI Deneyimine Hoş Geldiniz</h3>
+                    <p class="text-gray-400 text-sm md:text-base max-w-md mx-auto">Arka planda 5 farklı uzman yapay zeka ajanı aynı anda çalışır, görev dağılımı yapar ve tek bir kusursuz yanıt sunar.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
+                    <div onclick="fillSuggestedPrompt('Bana modern bir e-ticaret sepet arayüzü kodla. HTML, CSS ve JS ayrı olsun.')" class="p-4 bg-[#17191e] border border-[#23272f] hover:border-indigo-500/40 rounded-xl cursor-pointer transition-all hover:bg-[#1f2229] group">
+                        <div class="flex items-center gap-2 text-indigo-400 font-medium text-sm mb-1">
+                            <i class="fa-solid fa-code"></i> Frontend Web Geliştirme
+                        </div>
+                        <p class="text-xs text-gray-400 group-hover:text-gray-300">HTML şablonu hazırlar, anlık kod bloğunda gösterir.</p>
+                    </div>
+                    <div onclick="fillSuggestedPrompt('Roblox için datastore tabanlı kaydetme sistemi barındıran bir Luau liderlik tablosu (leaderboard) scripti yaz.')" class="p-4 bg-[#17191e] border border-[#23272f] hover:border-indigo-500/40 rounded-xl cursor-pointer transition-all hover:bg-[#1f2229] group">
+                        <div class="flex items-center gap-2 text-violet-400 font-medium text-sm mb-1">
+                            <i class="fa-solid fa-gamepad"></i> Roblox Luau Kodlama
+                        </div>
+                        <p class="text-xs text-gray-400 group-hover:text-gray-300">Roblox Studio uyumlu, optimize edilmiş temiz Luau scripti üretir.</p>
+                    </div>
+                    <div onclick="fillSuggestedPrompt('Yapay zekanın gelecekteki iş kolları üzerindeki etkisini anlatan profesyonel bir sunum taslağı ve PDF raporu hazırla.')" class="p-4 bg-[#17191e] border border-[#23272f] hover:border-indigo-500/40 rounded-xl cursor-pointer transition-all hover:bg-[#1f2229] group">
+                        <div class="flex items-center gap-2 text-amber-400 font-medium text-sm mb-1">
+                            <i class="fa-solid fa-file-invoice"></i> PDF Rapor ve Slayt Hazırlama
+                        </div>
+                        <p class="text-xs text-gray-400 group-hover:text-gray-300">Yukarıdaki butonlardan tek tıkla PDF veya slayta dökülecek düzen hazırlar.</p>
+                    </div>
+                    <div onclick="fillSuggestedPrompt('Selam! Bugün nasılsın? Biraz sohbet edelim mi? Yeni teknolojilerden konuşalım.')" class="p-4 bg-[#17191e] border border-[#23272f] hover:border-indigo-500/40 rounded-xl cursor-pointer transition-all hover:bg-[#1f2229] group">
+                        <div class="flex items-center gap-2 text-emerald-400 font-medium text-sm mb-1">
+                            <i class="fa-solid fa-comments"></i> Serbest Sohbet & Muhabbet
+                        </div>
+                        <p class="text-xs text-gray-400 group-hover:text-gray-300">Takım koordinasyonuna ihtiyaç duymadan hızlıca normal muhabbet eder.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="messagesList" class="max-w-4xl mx-auto space-y-6"></div>
         </div>
-    </div>
 
-    <div id="settingsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>API Yapılandırması</h2>
-                <button class="close-btn" onclick="closeSettings()">✖</button>
+        <footer class="p-4 bg-[#111318] border-t border-[#23272f]">
+            <div class="max-w-4xl mx-auto relative">
+                <div class="bg-[#17191e] border border-[#2d323b] focus-within:border-indigo-500/70 rounded-2xl p-2 transition-all flex flex-col gap-2 shadow-xl">
+                    <textarea id="userInput" rows="1" oninput="autoGrowTextarea(this)" placeholder="EMROX AI elit takımına bir görev verin veya sohbet edin..." class="w-full bg-transparent border-0 outline-none resize-none px-3 py-2 text-sm md:text-base text-gray-100 placeholder-gray-500 max-h-48 focus:ring-0"></textarea>
+                    
+                    <div class="flex items-center justify-between px-2 pt-1 border-t border-[#23272f]/50">
+                        <span class="text-xs text-gray-500 flex items-center gap-1">
+                            <i class="fa-solid fa-shield-halved text-indigo-400/70"></i> Veriler yerel cihazınızda (LocalStorage) güvendedir.
+                        </span>
+                        
+                        <div class="flex items-center gap-2">
+                            <button id="btnStop" onclick="abortGeneration()" class="hidden items-center gap-1.5 px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 border border-rose-500/30 text-rose-400 hover:text-white font-medium text-xs rounded-xl transition-all">
+                                <i class="fa-solid fa-square text-[10px]"></i> Durdur
+                            </button>
+                            <button id="btnSend" onclick="handleSendMessage()" class="p-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-md transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fa-solid fa-paper-plane text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center text-[11px] text-gray-600 mt-2">
+                    EMROX AI hiyerarşik multi-agent mimarisiyle çalışır. Sonuçları doğrulamayı unutmayın.
+                </div>
             </div>
-            
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('gemini')" id="tab-gemini">Gemini API</button>
-                <button class="tab-btn" onclick="switchTab('deepseek')" id="tab-deepseek">Deepseek API</button>
-            </div>
+        </footer>
+    </main>
 
-            <div id="content-gemini" class="tab-content active">
-                <div class="api-grid" id="geminiApiGrid"></div>
+    <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-[#17191e] border border-[#2a2e37] rounded-2xl w-full max-w-lg mx-4 overflow-hidden shadow-2xl flex flex-col">
+            <div class="p-4 bg-[#1c1f26] border-b border-[#2a2e37] flex items-center justify-between">
+                <h3 class="font-bold text-gray-100 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-400"></i> Sistem ve API Ayarları
+                </h3>
+                <button onclick="closeModal('settingsModal')" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
-            
-            <div id="content-deepseek" class="tab-content">
-                <div class="api-grid" id="deepseekApiGrid"></div>
-            </div>
+            <div class="p-6 space-y-4 overflow-y-auto max-h-[70vh]">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Gemini API Anahtarı (API Key)</label>
+                    <div class="relative">
+                        <input type="password" id="inputApiKey" placeholder="AIzaSy..." class="w-full bg-[#111318] border border-[#2a2e37] rounded-xl px-4 py-3 text-sm text-gray-100 outline-none focus:border-indigo-500 transition-all font-mono">
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">API anahtarınız asla sunucularımıza gitmez. Doğrudan tarayıcınızdan Google Gemini API uç noktalarına güvenli istek göndermek için yerel depolamanızda şifresiz tutulur.</p>
+                </div>
 
-            <button class="save-btn" onclick="saveSettings()">Kaydet</button>
+                <div class="p-4 bg-[#20242c] rounded-xl border border-[#2e3440] space-y-2">
+                    <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest"><i class="fa-solid fa-network-wired"></i> Entegre 5-Ajan Modeli</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">Girdiğiniz API üzerinden otomatik olarak koordine edilen ve paralel çalışan sistem ajanları:</p>
+                    <ul class="text-[11px] text-gray-400 space-y-1 list-disc pl-4">
+                        <li><strong>Ajan 1 (Orkestratör):</strong> Talebi analiz eder, niyet keşfeder ve görev şeması çizer.</li>
+                        <li><strong>Ajan 2 (Frontend Geliştirici):</strong> HTML, CSS ve UI bileşenlerini asenkron kodlar.</li>
+                        <li><strong>Ajan 3 (Roblox Luau Uzmanı):</strong> İstek varsa Roblox motoruna tam uyumlu Luau kodlar.</li>
+                        <li><strong>Ajan 4 (Dokümantasyon & Düzen):</strong> Verileri PDF/Slayt indirilebilir formata hazırlar.</li>
+                        <li><strong>Ajan 5 (Kalite ve Sentez):</strong> Çıktıları birleştirip son kusursuz yanıtı oluşturur.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-4 bg-[#1c1f26] border-t border-[#2a2e37] flex justify-end gap-2">
+                <button onclick="closeModal('settingsModal')" class="px-4 py-2 bg-transparent text-gray-400 hover:text-white font-medium text-sm rounded-xl transition-all">İptal</button>
+                <button onclick="saveSettings()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-xl transition-all shadow-lg shadow-indigo-500/20">Ayarları Kaydet</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const MAX_API = 20;
-        const GEMINI_MODEL = "gemini-3.1-flash-lite"; 
-        const DEEPSEEK_MODEL = "deepseek-v4-pro";
-
-        let chatHistory = JSON.parse(localStorage.getItem('swarmChats')) || [];
+        // App State
+        let conversations = [];
         let currentChatId = null;
+        let abortController = null;
 
-        window.onload = () => {
-            initSettingsUI(); renderChatList();
-            if (chatHistory.length > 0) loadChat(chatHistory[0].id);
-            else createNewChat();
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadConversations();
             
-            const savedAi = localStorage.getItem('preferredAiMode');
-            if(savedAi) document.getElementById('aiModelSelect').value = savedAi;
-        };
+            // Highlight.js initialization hook
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                    return hljs.highlight(code, { language }).value;
+                },
+                langPrefix: 'hljs language-'
+            });
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
-        function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+            // Adjust marked to build custom code block layouts with headers and copy buttons
+            const renderer = new marked.Renderer();
+            renderer.code = function(code, infostring, escaped) {
+                const lang = (infostring || 'text').toLowerCase();
+                const validLang = hljs.getLanguage(lang) ? lang : 'plaintext';
+                const highlighted = hljs.highlight(code, { language: validLang }).value;
+                
+                // Create unique ID for copy button mapping
+                const uniqueId = 'code-' + Math.random().toString(36).substring(2, 11);
+                
+                // Escape raw code securely for storage in attribute
+                const safeRawCode = btoa(unescape(encodeURIComponent(code)));
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            document.getElementById(`content-${tabName}`).classList.add('active');
+                return `
+                    <div class="code-block-container">
+                        <div class="code-block-header">
+                            <span><i class="fa-solid fa-code text-indigo-400 mr-1.5"></i>${validLang.toUpperCase()}</span>
+                            <span class="code-block-copy-btn" onclick="copyCode(this, '${safeRawCode}')">
+                                <i class="fa-regular fa-copy mr-1"></i> Kopyala
+                            </span>
+                        </div>
+                        <pre><code class="hljs language-${validLang}">${highlighted}</code></pre>
+                    </div>
+                `;
+            };
+            marked.use({ renderer });
+        });
+
+        // Toggle Sidebar on Mobile Views
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
         }
 
-        function initSettingsUI() {
-            const geminiGrid = document.getElementById('geminiApiGrid');
-            const deepseekGrid = document.getElementById('deepseekApiGrid');
-            
-            for (let i = 1; i <= MAX_API; i++) {
-                let gInput = document.createElement('input'); gInput.type = 'text'; gInput.id = 'geminiKey' + i;
-                gInput.placeholder = `Gemini API Key ${i}`; gInput.value = localStorage.getItem('geminiKey' + i) || '';
-                geminiGrid.appendChild(gInput);
-
-                let dInput = document.createElement('input'); dInput.type = 'text'; dInput.id = 'deepseekKey' + i;
-                dInput.placeholder = `Deepseek API Key ${i}`; dInput.value = localStorage.getItem('deepseekKey' + i) || '';
-                deepseekGrid.appendChild(dInput);
-            }
+        // Auto-grow Input Textarea
+        function autoGrowTextarea(element) {
+            element.style.height = 'auto';
+            element.style.height = element.scrollHeight + 'px';
         }
 
+        // Open/Close Modals Custom Utilities
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Settings LocalStorage Handlers
         function saveSettings() {
-            for (let i = 1; i <= MAX_API; i++) {
-                localStorage.setItem('geminiKey' + i, document.getElementById('geminiKey' + i).value.trim());
-                localStorage.setItem('deepseekKey' + i, document.getElementById('deepseekKey' + i).value.trim());
-            }
-            closeSettings(); logToUI('Sistem', 'API anahtarları başarıyla kaydedildi.', 'system');
+            const key = document.getElementById('inputApiKey').value.trim();
+            localStorage.setItem('emrox_api_key', key);
+            updateApiKeyBadge(key);
+            closeModal('settingsModal');
         }
 
-        function getActiveKeys(provider) {
-            let keys = [];
-            let prefix = provider === 'gemini' ? 'geminiKey' : 'deepseekKey';
-            for (let i = 1; i <= MAX_API; i++) { 
-                let val = localStorage.getItem(prefix + i); 
-                if (val) keys.push(val.trim()); 
+        function loadSettings() {
+            const key = localStorage.getItem('emrox_api_key') || '';
+            document.getElementById('inputApiKey').value = key;
+            updateApiKeyBadge(key);
+        }
+
+        function updateApiKeyBadge(key) {
+            const badge = document.getElementById('apiKeyBadge');
+            if (key) {
+                badge.className = "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> API Anahtarı Aktif`;
+            } else {
+                badge.className = "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 cursor-pointer animate-pulse";
+                badge.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> API Anahtarı Eksik`;
+                badge.onclick = () => openModal('settingsModal');
             }
-            return keys;
+        }
+
+        // Conversations History Engine
+        function loadConversations() {
+            const data = localStorage.getItem('emrox_conversations');
+            conversations = data ? JSON.parse(data) : [];
+            renderHistoryList();
+            if (conversations.length > 0) {
+                switchChat(conversations[0].id);
+            } else {
+                createNewChat();
+            }
+        }
+
+        function saveConversationsToDisk() {
+            localStorage.setItem('emrox_conversations', JSON.stringify(conversations));
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
+            const list = document.getElementById('chatHistoryList');
+            list.innerHTML = '';
+            
+            if (conversations.length === 0) {
+                list.innerHTML = `<div class="text-center text-xs text-gray-500 py-6">Geçmiş bulunmuyor.</div>`;
+                return;
+            }
+
+            conversations.forEach(chat => {
+                const isActive = chat.id === currentChatId;
+                const item = document.createElement('div');
+                item.className = `flex items-center justify-between group px-3 py-2.5 rounded-xl cursor-pointer text-sm font-medium transition-all ${isActive ? 'bg-[#20242c] text-white border border-[#2e3440]' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1c23]'}`;
+                item.onclick = () => switchChat(chat.id);
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5 overflow-hidden w-full">
+                        <i class="fa-regular fa-comment text-base ${isActive ? 'text-indigo-400' : 'text-gray-500'} flex-shrink-0"></i>
+                        <span class="truncate pr-2">${chat.title}</span>
+                    </div>
+                    <button onclick="event.stopPropagation(); deleteChat('${chat.id}')" class="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-rose-400 p-1 rounded transition-all">
+                        <i class="fa-regular fa-trash-can text-xs"></i>
+                    </button>
+                `;
+                list.appendChild(item);
+            });
         }
 
         function createNewChat() {
-            currentChatId = Date.now().toString();
-            chatHistory.unshift({ id: currentChatId, title: "Yeni Operasyon", logs: [] });
-            saveChatHistory(); document.getElementById('chatContainer').innerHTML = '';
-            logToUI('Sistem', 'Çoklu AI Mimarisi Devrede. Hem Gemini hem de Deepseek kullanılabilir.', 'system');
-            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+            const newId = 'chat_' + Date.now();
+            const newChat = {
+                id: newId,
+                title: 'Yeni Sohbet',
+                messages: []
+            };
+            conversations.unshift(newChat);
+            currentChatId = newId;
+            saveConversationsToDisk();
+            switchChat(newId);
         }
 
-        function saveChatHistory() { localStorage.setItem('swarmChats', JSON.stringify(chatHistory)); renderChatList(); }
+        function switchChat(id) {
+            currentChatId = id;
+            const chat = conversations.find(c => c.id === id);
+            if (!chat) return;
 
-        function renderChatList() {
-            const list = document.getElementById('chatList'); list.innerHTML = '';
-            chatHistory.forEach(chat => {
-                let isActive = chat.id === currentChatId ? 'active' : '';
-                list.insertAdjacentHTML('beforeend', `
-                    <div class="chat-item-container ${isActive}">
-                        <div class="chat-title" onclick="loadChat('${chat.id}')">${chat.title}</div>
-                        <div class="chat-actions">
-                            <button class="chat-action-btn" onclick="renameChat('${chat.id}')" title="Yeniden Adlandır">✎</button>
-                            <button class="chat-action-btn delete" onclick="deleteChat('${chat.id}')" title="Sil">🗑️</button>
-                        </div>
-                    </div>
-                `);
-            });
-        }
-
-        function loadChat(id) {
-            currentChatId = id; const chat = chatHistory.find(c => c.id === id);
-            const container = document.getElementById('chatContainer'); container.innerHTML = '';
-            if (chat && chat.logs) chat.logs.forEach(log => appendLogHTML(log.html));
-            renderChatList(); if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
-        }
-
-        function renameChat(id) {
-            event.stopPropagation(); let chat = chatHistory.find(c => c.id === id); if (!chat) return;
-            let newName = prompt("Sohbetin yeni adını girin:", chat.title);
-            if (newName && newName.trim() !== "") { chat.title = newName.trim(); saveChatHistory(); }
+            document.getElementById('currentChatTitle').innerText = chat.title;
+            renderHistoryList();
+            renderMessages();
+            
+            // Toggle Export Buttons state
+            const hasMessages = chat.messages.length > 0;
+            const pdfBtn = document.getElementById('btnPdfExport');
+            const slideBtn = document.getElementById('btnSlideExport');
+            
+            if (hasMessages) {
+                pdfBtn.disabled = false;
+                pdfBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                slideBtn.disabled = false;
+                slideBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                pdfBtn.disabled = true;
+                pdfBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                slideBtn.disabled = true;
+                slideBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
         }
 
         function deleteChat(id) {
-            event.stopPropagation();
-            if (confirm("Bu operasyonu silmek istediğinize emin misiniz?")) {
-                chatHistory = chatHistory.filter(c => c.id !== id);
-                if (currentChatId === id) { if (chatHistory.length > 0) loadChat(chatHistory[0].id); else createNewChat(); } 
-                else { saveChatHistory(); }
-            }
-        }
-
-        function logToUI(agent, message, type = 'normal', rawCode = null) {
-            let html = '';
-            if (type === 'final' && rawCode) {
-                const safeCode = rawCode.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                const uniqueId = 'code-' + Date.now();
-                html = `<div class="log-entry final"><span class="agent-name">[${agent}] Nihai Ürün:</span><div class="final-code-box"><div class="final-code-header"><span>Kaynak Kodu</span><button class="copy-btn" onclick="copyCode('${uniqueId}')">Kopyala</button></div><pre><code id="${uniqueId}">${safeCode}</code></pre></div></div>`;
+            conversations = conversations.filter(c => c.id !== id);
+            saveConversationsToDisk();
+            if (currentChatId === id) {
+                if (conversations.length > 0) {
+                    switchChat(conversations[0].id);
+                } else {
+                    createNewChat();
+                }
             } else {
-                let cssClass = 'log-entry ' + (type === 'normal' ? '' : type);
-                let safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                html = `<div class="${cssClass}"><span class="agent-name">[${agent}]:</span>${safeMessage}</div>`;
-            }
-            appendLogHTML(html);
-            let currentChat = chatHistory.find(c => c.id === currentChatId);
-            if (currentChat && type !== 'processing') {
-                if(!currentChat.logs) currentChat.logs = [];
-                currentChat.logs.push({ html: html }); localStorage.setItem('swarmChats', JSON.stringify(chatHistory));
+                renderHistoryList();
             }
         }
 
-        function appendLogHTML(htmlString) {
-            const container = document.getElementById('chatContainer');
-            const processingNode = container.querySelector('.processing');
-            if (processingNode && !htmlString.includes('processing')) processingNode.remove();
-            container.insertAdjacentHTML('beforeend', htmlString);
-            setTimeout(() => container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' }), 50);
+        function fillSuggestedPrompt(text) {
+            const textarea = document.getElementById('userInput');
+            textarea.value = text;
+            autoGrowTextarea(textarea);
+            textarea.focus();
         }
 
-        function copyCode(id) {
-            navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => {
-                let btn = document.querySelector(`button[onclick="copyCode('${id}')"]`);
-                btn.innerText = "Kopyalandı!"; btn.style.background = "var(--success)";
-                setTimeout(() => { btn.innerText = "Kopyala"; btn.style.background = "var(--accent)"; }, 2000);
+        // Render Messages List UI View
+        function renderMessages() {
+            const chat = conversations.find(c => c.id === currentChatId);
+            const welcome = document.getElementById('welcomePanel');
+            const list = document.getElementById('messagesList');
+            
+            list.innerHTML = '';
+
+            if (!chat || chat.messages.length === 0) {
+                welcome.classList.remove('hidden');
+                return;
+            }
+            welcome.classList.add('hidden');
+
+            chat.messages.forEach(msg => {
+                const isUser = msg.role === 'user';
+                const msgNode = document.createElement('div');
+                
+                if (isUser) {
+                    msgNode.className = "flex justify-end items-start gap-3 pl-12 animate-fade-in";
+                    msgNode.innerHTML = `
+                        <div class="bg-[#22252e] border border-[#2e3340] text-gray-100 rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-2xl shadow-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(msg.content)}</div>
+                        <div class="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center text-gray-300 text-xs font-bold flex-shrink-0">M</div>
+                    `;
+                } else {
+                    msgNode.className = "flex justify-start items-start gap-3 pr-12 animate-fade-in";
+                    const formattedHtml = marked.parse(msg.content);
+                    msgNode.innerHTML = `
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs flex-shrink-0 shadow-md">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="bg-[#17191e]/40 border border-[#23272f]/50 text-gray-200 rounded-2xl rounded-tl-sm px-5 py-4 text-sm max-w-full overflow-hidden shadow-sm prose">
+                            ${formattedHtml}
+                        </div>
+                    `;
+                }
+                list.appendChild(msgNode);
             });
+            scrollToBottom();
         }
 
-        function extractBlock(text, blockName) {
-            const regex = new RegExp(`\\[${blockName}\\]([\\s\\S]*?)\\[\\/${blockName}\\]`, 'i');
-            const match = text.match(regex);
-            return match ? match[1].trim() : null;
+        function scrollToBottom() {
+            const wrapper = document.getElementById('messagesWrapper');
+            wrapper.scrollTop = wrapper.scrollHeight;
         }
 
-        async function callGeminiRaw(apiKey, systemPrompt, dataString) {
-            const url = "https://" + "generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey;
-            const payload = { contents: [{ parts: [{ text: `${systemPrompt}\n\nVERİ:\n${dataString}` }] }] };
-            const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-            if (!response.ok) throw new Error(`Gemini API Hatası (${response.status})`);
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Copy Code utility helper
+        function copyCode(btn, base64Code) {
+            try {
+                const code = decodeURIComponent(escape(atob(base64Code)));
+                navigator.clipboard.writeText(code).then(() => {
+                    btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> Kopyalandı!`;
+                    setTimeout(() => {
+                        btn.innerHTML = `<i class="fa-regular fa-copy mr-1"></i> Kopyala`;
+                    }, 2000);
+                });
+            } catch (err) {
+                console.error('Kopyalama başarısız:', err);
+            }
+        }
+
+        // Abort controller generation
+        function abortGeneration() {
+            if (abortController) {
+                abortController.abort();
+                setUIState(false);
+                updateStatusIndicator('Sistem Hazır', 'bg-emerald-500');
+            }
+        }
+
+        function setUIState(isLoading) {
+            const sendBtn = document.getElementById('btnSend');
+            const stopBtn = document.getElementById('btnStop');
+            const textarea = document.getElementById('userInput');
+
+            if (isLoading) {
+                sendBtn.disabled = true;
+                stopBtn.classList.remove('hidden');
+                stopBtn.classList.add('flex');
+            } else {
+                sendBtn.disabled = false;
+                stopBtn.classList.add('hidden');
+                stopBtn.classList.remove('flex');
+                textarea.value = '';
+                autoGrowTextarea(textarea);
+            }
+        }
+
+        function updateStatusIndicator(text, colorClass) {
+            const statusNode = document.getElementById('agentStatus');
+            statusNode.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass} inline-block animate-pulse"></span> ${text}`;
+        }
+
+        // HIERARCHICAL MULTI-AGENT EXECUTION PIPELINE
+        async function handleSendMessage() {
+            const apiKey = localStorage.getItem('emrox_api_key');
+            if (!apiKey) {
+                alert('Lütfen önce sistem ayarlarına girip geçerli bir Gemini API anahtarı ekleyin.');
+                openModal('settingsModal');
+                return;
+            }
+
+            const inputNode = document.getElementById('userInput');
+            const userText = inputNode.value.trim();
+            if (!userText) return;
+
+            // Fetch Current Conversation context
+            const chat = conversations.find(c => c.id === currentChatId);
+            if (!chat) return;
+
+            // Auto rename conversation title if it was default
+            if (chat.messages.length === 0) {
+                chat.title = userText.length > 28 ? userText.substring(0, 25) + '...' : userText;
+                document.getElementById('currentChatTitle').innerText = chat.title;
+            }
+
+            // Append User Message to local states
+            chat.messages.push({ role: 'user', content: userText });
+            renderMessages();
+            setUIState(true);
+
+            // Initiate Abort Signal
+            abortController = new AbortController();
+
+            try {
+                // STEP 1: Call Orchestrator (Agent 1) to build task map or identify casual chat intent
+                updateStatusIndicator('Orkestratör (Ajan 1) planlama yapıyor...', 'bg-indigo-500');
+                
+                const orchestratorPrompt = `
+                Sen EMROX AI platformunun 1 numaralı Baş Orkestratör Ajanısın. Görevin, kullanıcının girdisini inceleyip bir yol haritası çıkarmaktır.
+                Kullanıcı girdisini değerlendir: Eğer kullanıcı sadece selam veriyorsa, hal hatır soruyorsa veya teknik bir üretim (HTML site, Luau kodu, PDF yapısı, Slayt tasarımı) istemiyorsa, bu bir "SOHBET" niyetidir.
+                Eğer teknik bir şey istiyorsa bunu bir "UIGELISTIRME", "ROBLOXKODLAMA" veya "DOKUMANRAPOR" olarak sınıflandır.
+                
+                Yanıtını SADECE ve SADECE aşağıdaki JSON şemasına birebir uyacak şekilde ver. Başka hiçbir şey yazma, açıklama ekleme, markdown bloğu yapma.
+                JSON Şeması:
+                {
+                  "niyet": "SOHBET" veya "TEKNIK",
+                  "gorevler": {
+                    "frontend": "Ajan 2 için frontend talimatı (Yoksa boş bırak)",
+                    "roblox": "Ajan 3 için Roblox Luau talimatı (Yoksa boş bırak)",
+                    "dokuman": "Ajan 4 için PDF/Slayt içerik yapılandırma talimatı (Yoksa boş bırak)"
+                  }
+                }
+                
+                Kullanıcı Girdisi: "${userText}"
+                `;
+
+                const orkestratörResponseText = await callGeminiAPI(orchestratorPrompt, apiKey, abortController.signal);
+                let taskBlueprint;
+                try {
+                    // Clean up any potential markdown text response wrap
+                    const cleanedJson = orkestratörResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
+                    taskBlueprint = JSON.parse(cleanedJson);
+                } catch (e) {
+                    // Fallback configuration if json parse fails
+                    taskBlueprint = { niyet: "SOHBET", gorevler: { frontend: "", roblox: "", dokuman: "" } };
+                }
+
+                let finalSynthesisInput = "";
+
+                if (taskBlueprint.niyet === "SOHBET") {
+                    // ROUTE A: Fast Track Casual Chat directly to Agent 5
+                    updateStatusIndicator('Sentezci (Ajan 5) yanıt hazırlıyor...', 'bg-emerald-500');
+                    const casualPrompt = `Sen EMROX AI sisteminin Sentez ve İletişim Uzmanısın (Ajan 5). Kullanıcı seninle sohbet etmek istiyor veya basit bir sorusu var. Samimi, şık, son derece zeki ve net bir yanıt ver. Kullanıcıyla mükemmel bir iletişim kur.\nKullanıcı: ${userText}`;
+                    finalSynthesisInput = await callGeminiAPI(casualPrompt, apiKey, abortController.signal);
+                } else {
+                    // ROUTE B: Technical Multi-Agent Execution Parallel Pipe
+                    let parallelPromises = [];
+                    let agentKeys = [];
+
+                    if (taskBlueprint.gorevler.frontend) {
+                        updateStatusIndicator('Yazılım ekibi çalışıyor (Ajan 2 devrede)...', 'bg-violet-500');
+                        const p2 = `Sen Üst Düzey Kıdemli Frontend ve Web Geliştirici Ajansın (Ajan 2). Görevin, kullanıcının isteğine yönelik eksiksiz, kaliteli HTML, CSS veya JS kod mimarisi kurmaktır. Kodlarında asla kısaltma yapma. Kodlarını temiz kod blokları halinde (\`\`\`html) ver. Talimatın: ${taskBlueprint.gorevler.frontend}`;
+                        parallelPromises.push(callGeminiAPI(p2, apiKey, abortController.signal));
+                        agentKeys.push("Frontend Geliştirici (Ajan 2) Çıktısı");
+                    }
+                    if (taskBlueprint.gorevler.roblox) {
+                        updateStatusIndicator('Yazılım ekibi çalışıyor (Ajan 3 devrede)...', 'bg-sky-500');
+                        const p3 = `Sen Profesyonel Roblox Studio ve Luau Programlama Dili Uzmanısın (Ajan 3). İstenen mekanikleri tam optimize, güvenli ve performansı yüksek şekilde Luau koduna dök. Kısaltma yapmadan tam script üret. Kod bloğu içinde (\`\`\`lua) teslim et. Talimatın: ${taskBlueprint.gorevler.roblox}`;
+                        parallelPromises.push(callGeminiAPI(p3, apiKey, abortController.signal));
+                        agentKeys.push("Roblox Luau Uzmanı (Ajan 3) Çıktısı");
+                    }
+                    if (taskBlueprint.gorevler.dokuman) {
+                        updateStatusIndicator('Dokümantasyon ekibi çalışıyor (Ajan 4 devrede)...', 'bg-amber-500');
+                        const p4 = `Sen Teknik Dokümantasyon, Raporlama ve Sunum Mimarısın (Ajan 4). Kullanıcının istediği PDF veya slayt dosyalarına kaynak oluşturacak verileri harika bir hiyerarşiyle başlıklar, maddeler ve profesyonel içerik blokları halinde hazırla. Talimatın: ${taskBlueprint.gorevler.dokuman}`;
+                        parallelPromises.push(callGeminiAPI(p4, apiKey, abortController.signal));
+                        agentKeys.push("Dokümantasyon Tasarımcısı (Ajan 4) Çıktısı");
+                    }
+
+                    // Execute active technical agents concurrently for high-speed resolution
+                    const agentOutputs = await Promise.all(parallelPromises);
+                    
+                    // Bundle up collective intelligence
+                    let combinedIntel = `Kullanıcının Ana Talebi: ${userText}\n\n`;
+                    for(let i=0; i<agentOutputs.length; i++) {
+                        combinedIntel += `### ${agentKeys[i]}:\n${agentOutputs[i]}\n\n`;
+                    }
+
+                    // STEP 5: Call Reviewer and Final Synthesizer (Agent 5)
+                    updateStatusIndicator('Kalite Kontrol ve Sentez Uzmanı (Ajan 5) birleştiriyor...', 'bg-teal-500');
+                    const synthesisPrompt = `
+                    Sen EMROX AI Kalite Kontrol ve Sentez Uzmanısın (Ajan 5). Görevin, teknik ekiplerden (Ajan 2, 3, 4) gelen çıktıları incelemek, hataları ayıklamak, birleştirmek ve kullanıcıya EMROX AI kalitesine yakışır şık, eksiksiz, mükemmel bir Markdown cevabı sunmaktır.
+                    HTML veya Luau kod bloklarını aynen koru veya optimize et. Üretilen içeriklerin PDF raporu veya slayt indirme butonlarıyla dışarı aktarılabileceğini kullanıcıya bildiren kibar bir not ekle.
+                    İşte gelen uzman verileri:
+                    ${combinedIntel}
+                    `;
+                    finalSynthesisInput = await callGeminiAPI(synthesisPrompt, apiKey, abortController.signal);
+                }
+
+                // Push completed generation to conversational history layout
+                chat.messages.push({ role: 'model', content: finalSynthesisInput });
+                saveConversationsToDisk();
+                switchChat(currentChatId);
+                updateStatusIndicator('Sistem Hazır', 'bg-emerald-500');
+
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    chat.messages.push({ role: 'model', content: `**Hata Gerçekleşti:** İstek işlenirken bir sorun oluştu. Detay: ${err.message}. Lütfen API Anahtarınızı kontrol edin.` });
+                    saveConversationsToDisk();
+                    switchChat(currentChatId);
+                    updateStatusIndicator('Sistem Hatası', 'bg-rose-500');
+                }
+            } finally {
+                setUIState(false);
+                abortController = null;
+            }
+        }
+
+        // Generic Gemini Rest API Connector Client Method
+        async function callGeminiAPI(prompt, apiKey, signal) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                }),
+                signal: signal
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error?.message || 'API Hatası oluştu.');
+            }
+
             const data = await response.json();
             return data.candidates[0].content.parts[0].text;
         }
 
-        async function callDeepseekRaw(apiKey, systemPrompt, dataString) {
-            const url = "https://" + "api.deepseek.com/chat/completions";
-            const payload = {
-                model: DEEPSEEK_MODEL,
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: `VERİ:\n${dataString}` }
-                ],
-                thinking: { type: "enabled" },
-                reasoning_effort: "high",
-                stream: false
-            };
-            const response = await fetch(url, { 
-                method: "POST", 
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` }, 
-                body: JSON.stringify(payload) 
-            });
-            if (!response.ok) throw new Error(`Deepseek API Hatası (${response.status})`);
-            const data = await response.json();
-            return data.choices[0].message.content;
-        }
+        // EXPORT CAPABILITIES ENGINE (PDF & SLIDES)
+        function exportToPDF() {
+            const chat = conversations.find(c => c.id === currentChatId);
+            if (!chat || chat.messages.length === 0) return;
 
-        async function callAIWithRetry(agentName, apiKey, systemPrompt, dataString, provider, maxRetries = 3) {
-            for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                try {
-                    if (provider === 'gemini') return await callGeminiRaw(apiKey, systemPrompt, dataString);
-                    else return await callDeepseekRaw(apiKey, systemPrompt, dataString);
-                } catch (error) {
-                    console.warn(`${agentName} - Deneme ${attempt} başarısız:`, error);
-                    if (attempt === maxRetries) throw new Error(`${provider.toUpperCase()} yanıt vermeyi tamamen reddetti.`);
-                    logToUI(agentName, `Bağlantı sorunu. ${attempt + 1}. kez deneniyor...`, 'warning');
-                    await new Promise(r => setTimeout(r, 2000));
-                }
-            }
-        }
-
-        async function startRevolution() {
-            const prompt = document.getElementById('promptInput').value.trim();
-            if (!prompt) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
             
-            const selectedAi = document.getElementById('aiModelSelect').value;
-            localStorage.setItem('preferredAiMode', selectedAi);
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(20);
+            doc.text("EMROX AI - Rapor Dokumani", 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setFont("Helvetica", "normal");
+            doc.setTextColor(100);
+            doc.text(`Tarih: ${new Date().toLocaleString('tr-TR')} | Sohbet ID: ${chat.id}`, 14, 27);
+            doc.line(14, 30, 196, 30);
 
-            const activeKeys = getActiveKeys(selectedAi);
-            if (activeKeys.length === 0) return logToUI('Hata', `Seçili AI (${selectedAi.toUpperCase()}) için API anahtarı eksik. Lütfen ayarlardan ekleyin.`, 'error');
+            let yOffset = 40;
+            doc.setFontSize(11);
+            doc.setTextColor(40);
 
-            let multiplier = parseInt(document.getElementById('loopMultiplier').value) || 1;
-            if (multiplier < 1) multiplier = 1;
+            chat.messages.forEach(msg => {
+                const rolePrefix = msg.role === 'user' ? "Kullanici: " : "Yapay Zeka (EMROX AI): ";
+                doc.setFont("Helvetica", "bold");
+                
+                // Print Role
+                const roleLines = doc.splitTextToSize(rolePrefix, 180);
+                doc.text(roleLines, 14, yOffset);
+                yOffset += (roleLines.length * 6);
 
-            let totalAgents = activeKeys.length * multiplier;
-            let aiLabel = selectedAi === 'gemini' ? '🔹 Gemini Sürüsü' : '🟢 Deepseek Sürüsü (v4 Pro)';
-
-            document.getElementById('promptInput').value = '';
-            let chat = chatHistory.find(c => c.id === currentChatId);
-            if (chat.title === "Yeni Operasyon") { chat.title = prompt.substring(0, 25) + "..."; saveChatHistory(); }
-
-            logToUI('Kullanıcı', prompt, 'normal');
-            logToUI('Sistem', `${aiLabel} harekete geçti. ${activeKeys.length} API anahtarı ile ${multiplier} tur dönülecek. Toplam Ajan: ${totalAgents}`, 'system');
-
-            let memory = { plan: "", currentCode: "", notes: "" };
-
-            try {
-                if (totalAgents === 1) {
-                    logToUI('Ajan 1', 'İşlem yapılıyor...', 'processing');
-                    let rawOutput = await callAIWithRetry('Ajan 1', activeKeys[0], "Tüm işlemleri tek başına yap. Çok yaratıcı ol, detaya gir, hataları önceden sez. Çıktıyı eksiksiz [KOD] ve [/KOD] etiketleri arasına yaz. Kesinlikle // şeklinde kodu atlama veya kısaltma yapma. KODUN TAMAMINI VER.", `İstek: ${prompt}`, selectedAi);
-                    let finalCode = extractBlock(rawOutput, 'KOD') || rawOutput.replace(/\`\`\`(?:html|lua|javascript|css)?/gi, '').replace(/\`\`\`/g, '');
-                    return logToUI('Ajan 1', 'Süreç tamamlandı. Detaylı ve eksiksiz üretim yapıldı.', 'final', finalCode);
+                // Clean up source text code blocks markdown flags slightly for text report overview
+                let cleanContent = msg.content.replace(/```[a-z]*/g, '--- Kod Blogu ---');
+                
+                doc.setFont("Helvetica", "normal");
+                const lines = doc.splitTextToSize(cleanContent, 180);
+                
+                // Page overflow management
+                if (yOffset + (lines.length * 5) > 280) {
+                    doc.addPage();
+                    yOffset = 20;
                 }
+                
+                doc.text(lines, 14, yOffset);
+                yOffset += (lines.length * 5) + 8;
+            });
 
-                // 1. MİMAR
-                let mimarKey = activeKeys[0 % activeKeys.length]; 
-                logToUI('Ajan 1 (Mimar)', 'İstek analiz ediliyor, plan çiziliyor...', 'processing');
-                let mimarPrompt = `Sen vizyoner bir Yazılım Mimarı ve Ürün Yöneticisisin. İstek için detaylı bir plan yap.
-                GÖREVİN: 1. İşlevi analiz et. 2. Vizyon kat! 3. Muhtemel hataları öngör. Planını kesinlikle [PLAN] ve [/PLAN] etiketleri arasına yaz.`;
-                let mimarOutput = await callAIWithRetry('Ajan 1 (Mimar)', mimarKey, mimarPrompt, `İstek: ${prompt}`, selectedAi);
-                memory.plan = extractBlock(mimarOutput, 'PLAN') || mimarOutput;
-                logToUI('Ajan 1 (Mimar)', 'Kapsamlı plan hazır.');
+            doc.save(`emrox-ai-report-${chat.id}.pdf`);
+        }
 
-                // 2. GELİŞTİRİCİLER VE MÜFETTİŞLER
-                for (let i = 1; i < totalAgents - 1; i++) {
-                    let role = i % 2 !== 0 ? 'Geliştirici' : 'Müfettiş';
-                    let agentNum = i + 1;
-                    let agentStr = `Ajan ${agentNum} (${role})`;
-                    let currentKey = activeKeys[i % activeKeys.length]; 
+        function exportToSlides() {
+            const chat = conversations.find(c => c.id === currentChatId);
+            if (!chat || chat.messages.length === 0) return;
 
-                    logToUI(agentStr, `Kod üzerinde çalışılıyor...`, 'processing');
-                    
-                    let instruction = role === 'Geliştirici' 
-                        ? `ÖNEMLİ: Sen Geliştiricisin. Plana göre kodu inşaa et. Kodu YAZARKEN ASLA KISALTMA YAPMA. "Buraya eski kod gelecek" diyemezsin. Koda yaratıcı detaylar kat. Çıktını ŞU FORMA GÖRE ver:\n[NOTLAR]\nNeler eklediğini yaz.\n[/NOTLAR]\n[KOD]\nEksiksiz kodu buraya yaz.\n[/KOD]`
-                        : `ÖNEMLİ: Sen Müfettişsin. Kodu incele. Hata var mı bul ve DÜZELT. Eksik bir şey var mı bul ve KODA EKLE. KODU ASLA KISALTMA. Çıktını ŞU FORMA GÖRE ver:\n[NOTLAR]\nHataları/geliştirmeleri açıkla.\n[/NOTLAR]\n[KOD]\nEksiksiz kodu buraya yaz.\n[/KOD]`;
+            // Find last ai response to extract headings or list items for slides
+            const aiMessages = chat.messages.filter(m => m.role === 'model');
+            if (aiMessages.length === 0) return;
+            const targetText = aiMessages[aiMessages.length - 1].content;
 
-                    let dataString = `PLAN:\n${memory.plan}\n\nÖNCEKİ NOTLAR:\n${memory.notes}\n\nMEVCUT KOD:\n${memory.currentCode}`;
+            // Simple parser logic splitting lines to extract text for slides markup layout
+            const lines = targetText.split('\n');
+            let slideContentArr = [];
+            let currentSlide = { title: chat.title, bullets: [] };
 
-                    try {
-                        let result = await callAIWithRetry(agentStr, currentKey, instruction, dataString, selectedAi);
-                        
-                        let extractedCode = extractBlock(result, 'KOD');
-                        let extractedNotes = extractBlock(result, 'NOTLAR');
-
-                        if (extractedCode) memory.currentCode = extractedCode;
-                        else if (result.length > 50) memory.currentCode = result.replace(/\`\`\`(?:html|lua|javascript|css)?/gi, '').replace(/\`\`\`/g, ''); 
-                        
-                        if (extractedNotes) memory.notes = extractedNotes;
-
-                        logToUI(agentStr, `İşlem tamamlandı.`);
-                    } catch (e) {
-                        logToUI(agentStr, `Ajan limit yedi ama sistem ÇÖKMEDİ! Sıradaki ajana geçiliyor.`, 'error');
+            lines.forEach(line => {
+                const cleanLine = line.trim();
+                if (cleanLine.startsWith('#')) {
+                    if (currentSlide.bullets.length > 0 || currentSlide.title !== chat.title) {
+                        slideContentArr.push(currentSlide);
                     }
+                    currentSlide = { title: cleanLine.replace(/#/g, '').trim(), bullets: [] };
+                } else if (cleanLine.startsWith('-') || cleanLine.startsWith('*') || /^\d+\./.test(cleanLine)) {
+                    currentSlide.bullets.push(cleanLine.replace(/^[-*\d.]/g, '').trim());
                 }
-
-                // 3. BAŞKAN
-                let baskanKey = activeKeys[(totalAgents - 1) % activeKeys.length];
-                let baskanNum = totalAgents;
-                logToUI(`Ajan ${baskanNum} (Başkan)`, 'Nihai derleme yapılıyor...', 'processing');
-                
-                let baskanPrompt = `Sen Başkansın. Gelen MEVCUT KODU al, son kez gözden geçir, varsa açık etiketleri kapat. HİÇBİR SATIRI KISALTMA. Eksiksiz nihai ürünü oluştur. Çıktıyı SADECE [FİNAL_KOD] ve [/FİNAL_KOD] arasına yaz. Başka hiçbir açıklama yapma.`;
-                let baskanOutput = await callAIWithRetry(`Ajan ${baskanNum} (Başkan)`, baskanKey, baskanPrompt, `MEVCUT KOD:\n${memory.currentCode}`, selectedAi, 4);
-                
-                let finalCode = extractBlock(baskanOutput, 'FİNAL_KOD') || baskanOutput.replace(/\`\`\`(?:html|lua|javascript|css)?/gi, '').replace(/\`\`\`/g, '').trim();
-
-                logToUI(`Ajan ${baskanNum} (Başkan)`, 'Operasyon başarılı. Nihai sonuç hazır:', 'final', finalCode);
-
-            } catch (error) {
-                logToUI('Sistem Hatası', error.message, 'error');
+            });
+            if (currentSlide.bullets.length > 0 || currentSlide.title !== chat.title) {
+                slideContentArr.push(currentSlide);
             }
+
+            // Fallback default slide if no headers parsed structure found
+            if (slideContentArr.length === 0) {
+                slideContentArr.push({
+                    title: "EMROX AI Özet Sunumu",
+                    bullets: ["Detaylı rapor içeriği dokümanda yer almaktadır.", "Slayt oluşturucu hiyerarşik yapı bulamadığında bu paneli hazırlar."]
+                });
+            }
+
+            // Constructing a fully functional autonomous presentation viewer page inject code
+            let slidesHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>EMROX AI - Sunum Paneli</title>
+                <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+                <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
+                <style>
+                    .slide { display: none; }
+                    .slide.active { display: flex; }
+                </style>
+            </head>
+            <body class="bg-[#0f1115] text-gray-100 h-screen w-screen flex flex-col justify-between overflow-hidden p-8 font-sans">
+                <header class="flex justify-between items-center border-b border-gray-800 pb-4">
+                    <span class="font-bold text-indigo-400"><i class="fa-solid fa-play mr-2"></i>EMROX AI Presentation System</span>
+                    <span class="text-sm text-gray-500" id="slideNum">1 / ${slideContentArr.length}</span>
+                </header>
+                
+                <main class="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full">
+            `;
+
+            slideContentArr.forEach((slide, idx) => {
+                slidesHtml += `
+                    <div class="slide ${idx === 0 ? 'active' : ''} flex-col space-y-6 animate-fade-in" data-index="${idx}">
+                        <h1 class="text-4xl font-extrabold text-white border-l-4 border-indigo-500 pl-4">${slide.title}</h1>
+                        <ul class="space-y-4 text-xl text-gray-300 list-disc pl-8">
+                `;
+                slide.bullets.forEach(b => {
+                    slidesHtml += `<li>${b}</li>`;
+                });
+                slidesHtml += `
+                        </ul>
+                    </div>
+                `;
+            });
+
+            slidesHtml += `
+                </main>
+                
+                <footer class="flex justify-between items-center border-t border-gray-800 pt-4">
+                    <span class="text-xs text-gray-600">Yön tuşları veya butonlarla kontrol edebilirsiniz.</span>
+                    <div class="flex gap-2">
+                        <button onclick="prevSlide()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm"><i class="fa-solid fa-arrow-left"></i> Geri</button>
+                        <button onclick="nextSlide()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm">İleri <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </footer>
+
+                <script>
+                    let current = 0;
+                    const total = ${slideContentArr.length};
+                    const slides = document.querySelectorAll('.slide');
+                    const numNode = document.getElementById('slideNum');
+
+                    function showSlide(idx) {
+                        if(idx < 0 || idx >= total) return;
+                        slides[current].classList.remove('active');
+                        slides[current].classList.add('hidden');
+                        current = idx;
+                        slides[current].classList.remove('hidden');
+                        slides[current].classList.add('active');
+                        numNode.innerText = (current + 1) + " / " + total;
+                    }
+                    function nextSlide() { if(current < total - 1) showSlide(current + 1); }
+                    function prevSlide() { if(current > 0) showSlide(current - 1); }
+
+                    document.addEventListener('keydown', (e) => {
+                        if(e.key === 'ArrowRight') nextSlide();
+                        if(e.key === 'ArrowLeft') prevSlide();
+                    });
+                <\/script>
+            </body>
+            </html>
+            `;
+
+            // Trigger safe local standalone HTML download prompt
+            const blob = new Blob([slidesHtml], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `emrox-presentation-${chat.id}.html`;
+            link.click();
         }
     </script>
 </body>
